@@ -4,6 +4,28 @@ const multer = require('multer');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const nodemailer = require('nodemailer');
+
+const mailTransporter = (process.env.SMTP_USER && process.env.SMTP_PASS)
+  ? nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+    })
+  : null;
+
+async function sendQueueEmail(to, subject, html) {
+  if (!mailTransporter || !to || !to.includes('@')) return;
+  try {
+    await mailTransporter.sendMail({
+      from: `"emerieco.sounds" <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      html
+    });
+  } catch (err) {
+    console.error('Email alert error:', err.message);
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -408,6 +430,33 @@ app.post('/api/now-playing', requireAdmin, (req, res) => {
     song_url: sub.song_url,
     updated_at: new Date().toISOString()
   };
+  // 1. Notify the artist currently playing
+  if (!sub.notifiedPlaying && sub.contact && sub.contact.includes('@')) {
+    sub.notifiedPlaying = true;
+    sendQueueEmail(
+      sub.contact,
+      `🔴 YOUR SONG IS LIVE NOW: "${sub.track}" on emerieco.sounds!`,
+      `<p>Yo <b>${sub.artist}</b>,</p>
+       <p>We are playing <b>"${sub.track}"</b> LIVE right now on TikTok! Tune in to hear your live reaction & rating:</p>
+       <p>👉 <a href="https://www.tiktok.com/@emeriegmz">Watch @emeriegmz Live</a> or <a href="https://www.tiktok.com/@jayclerronone">Watch @jayclerronone Live</a></p>`
+    );
+  }
+
+  // 2. Notify the artist coming up next in the queue
+  const upcomingQueue = db.submissions
+    .filter(s => s.status !== 'published' && s.id !== sub.id)
+    .sort((a, b) => (b.priority - a.priority) || (a.id - b.id));
+  const upNext = upcomingQueue[1] || upcomingQueue[0];
+  if (upNext && !upNext.notifiedUpNext && upNext.contact && upNext.contact.includes('@')) {
+    upNext.notifiedUpNext = true;
+    sendQueueEmail(
+      upNext.contact,
+      `⏳ YOUR SONG IS UP NEXT: "${upNext.track}" on emerieco.sounds!`,
+      `<p>Heads up <b>${upNext.artist}</b>!</p>
+       <p>Your track <b>"${upNext.track}"</b> is coming up in just a couple of songs on our live review stream. Hop in now so you don't miss it!</p>
+       <p>👉 <a href="https://www.tiktok.com/@emeriegmz">Watch @emeriegmz Live</a> or <a href="https://www.tiktok.com/@jayclerronone">Watch @jayclerronone Live</a></p>`
+    );
+  }
   writeDB(db);
   res.json({ ok: true, nowPlaying: db.nowPlaying });
 });
