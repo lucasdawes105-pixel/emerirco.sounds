@@ -682,6 +682,10 @@ footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filt
     <div class="eyebrow">Get your track heard</div>
     <h2>Put your sound<br>in the spotlight.</h2>
     <p>Send a streaming link, upload an audio file, or do both. New tracks enter the review queue immediately after submission. Only submit music you own or have permission to share.</p>
+    <div id="liveQueueBadge" style="display:inline-flex;align-items:center;gap:8px;margin:10px 0 18px;padding:8px 14px;border-radius:999px;background:rgba(57,229,106,.12);border:1px solid rgba(57,229,106,.38);font-size:13px;font-weight:700;color:#b4f36b;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#39e56a;box-shadow:0 0 8px #39e56a;display:inline-block;"></span>
+      <span id="liveQueueText">Checking live queue...</span>
+    </div>
     <div class="policy-card">
       <b>Review policy:</b> Paid priority changes queue placement only. It never guarantees a high rating or a positive review. Every track gets the same honest ear.
     </div>
@@ -1220,6 +1224,14 @@ async function loadSite(){
   allReviews=Array.isArray(reviews)?reviews:[];
   $('#reviewCount').textContent=allReviews.length;
   $('#queueCount').textContent=queue.length;
+   const qLen = Array.isArray(queue) ? queue.length : 0;
+const estMins = Math.max(3, Math.round(qLen * 3.5));
+const qBadgeText = document.getElementById('liveQueueText');
+if (qBadgeText) {
+  qBadgeText.textContent = qLen === 0
+    ? 'Queue is wide open • Submit now to play next!'
+    : `${qLen} ${qLen === 1 ? 'track' : 'tracks'} in queue • ~${estMins} min wait`;
+}
   if(allReviews.length){
    const avg=allReviews.reduce((acc,r)=>acc+Number(r.score??0),0)/allReviews.length;
    $('#avgScore').textContent=avg.toFixed(1);
