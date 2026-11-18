@@ -59,17 +59,8 @@ const GENRE_CRITERIA = {
 function readDB() {
   if (!fs.existsSync(DB_FILE)) {
     const initial = {
-      nextId: 7,
-      nowPlaying: {
-        id: 2,
-        artist: 'Nadia Sol',
-        track: 'Velvet Static',
-        genre: 'R&B',
-        priority: 0,
-        audio_url: null,
-        song_url: 'https://spotify.com',
-        updated_at: new Date().toISOString()
-      },
+      nextId: 1,
+      nowPlaying: null,
       lastWheelSpin: null,
       adminProfiles: {
         emerieco: {
@@ -105,108 +96,10 @@ function readDB() {
         emerieco: process.env.ADMIN_PASSWORD_EMERIECO ? hashPassword(process.env.ADMIN_PASSWORD_EMERIECO) : null,
         jayclerr: process.env.ADMIN_PASSWORD_JAYCLERR ? hashPassword(process.env.ADMIN_PASSWORD_JAYCLERR) : null
       },
-      topArtists: [
-        { rank: 1, artist: 'Nadia Sol', genre: 'R&B', note: 'Unmatched vocal layers & analog warmth', link: 'https://spotify.com' },
-        { rank: 2, artist: 'Kairo Vance', genre: 'Hip-hop / Rap', note: 'Effortless boom-bap pocket & cadence', link: 'https://soundcloud.com' },
-        { rank: 3, artist: 'Glass Harbor', genre: 'Alternative', note: 'Shimmering guitars & tight drums', link: 'https://youtube.com' }
-      ],
-      topTracks: [
-        { rank: 1, artist: 'Nadia Sol', track: 'Velvet Static', genre: 'R&B', note: '9.2 — Standout vocal performance', song_url: 'https://spotify.com', audio_url: null },
-        { rank: 2, artist: 'Kairo Vance', track: 'Emerald Skyline', genre: 'Hip-hop / Rap', note: '8.7 — Second verse beat switch hits hard', song_url: 'https://soundcloud.com', audio_url: null },
-        { rank: 3, artist: 'Glass Harbor', track: 'Neon Drift', genre: 'Alternative', note: '8.1 — Crisp chorus energy', song_url: 'https://youtube.com', audio_url: null }
-      ],
-      submissions: [
-        {
-          id: 1,
-          artist: 'Kairo Vance',
-          track: 'Emerald Skyline',
-          song_url: 'https://soundcloud.com',
-          audio_url: null,
-          genre: 'Hip-hop / Rap',
-          contact: '@kairovance',
-          note: 'Late night boom-bap flip.',
-          priority: 0,
-          status: 'published',
-          score: 8.7,
-          review: 'Crisp drum pocket and effortless cadence. The synth switch in the second verse elevates the entire track.',
-          communityRatings: [],
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 2,
-          artist: 'Nadia Sol',
-          track: 'Velvet Static',
-          song_url: 'https://spotify.com',
-          audio_url: null,
-          genre: 'R&B',
-          contact: '@nadiasolmusic',
-          note: 'Recorded live in one take.',
-          priority: 0,
-          status: 'published',
-          score: 9.2,
-          review: 'Warm analog texture paired with layered harmonies that linger well after the outro fades.',
-          communityRatings: [],
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 3,
-          artist: 'Glass Harbor',
-          track: 'Neon Drift',
-          song_url: 'https://youtube.com',
-          audio_url: null,
-          genre: 'Alternative',
-          contact: '@glassharborband',
-          note: 'First single off our EP.',
-          priority: 0,
-          status: 'published',
-          score: 8.1,
-          review: 'Shimmering chorus guitars and tight percussion. Bridging the second verse into the hook hits hard.',
-          communityRatings: [],
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 4,
-          artist: 'sub/zero',
-          track: 'Afterhours Telemetry',
-          song_url: 'https://bandcamp.com',
-          audio_url: null,
-          genre: 'Electronic',
-          contact: '@subzero_wav',
-          note: 'Club-ready bassline test.',
-          priority: 1,
-          status: 'queued',
-          score: null,
-          review: null,
-          communityRatings: [],
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 5,
-          artist: 'Mina Cruz',
-          track: 'Solaris Bounce',
-          song_url: 'https://soundcloud.com',
-          audio_url: null,
-          genre: 'Pop',
-          contact: '@minacruz',
-          note: 'Summer hook test.',
-          priority: 0,
-          status: 'queued',
-          score: null,
-          review: null,
-          communityRatings: [],
-          created_at: new Date().toISOString()
-        },
-        {
-          id: 6,
-          artist: 'Jett & The Static',
-          track: 'Midnight Overdrive',
-          song_url: 'https://youtube.com',
-          audio_url: null,
-          genre: 'Rock',
-          contact: '@jettstatic',
-          note: 'Live studio cut.',
-          priority: 0,
-          status: 'queued',
+      topArtists: [],
+      topTracks: [],
+      submissions: []
+    };
           score: null,
           review: null,
           communityRatings: [],
