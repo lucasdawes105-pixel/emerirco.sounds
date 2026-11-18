@@ -585,6 +585,13 @@ footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filt
     <small>LISTEN CLOSE · SPEAK HONESTLY</small>
   </div>
 </section>
+  <div id="tiktokLiveBanner" style="display:none;margin-top:20px;padding:14px 16px;border-radius:16px;background:rgba(255,45,85,.12);border:1px solid rgba(255,45,85,.45);flex-direction:column;gap:10px;max-width:460px;">
+        <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:#ff4d6d;">
+          <span style="width:9px;height:9px;border-radius:50%;background:#ff2d55;box-shadow:0 0 10px #ff2d55;display:inline-block;"></span>
+          LIVE ON TIKTOK RIGHT NOW
+        </div>
+        <div id="tiktokLiveLinks" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+      </div>
 
 <section class="stats reveal-block">
   <div class="stat"><b id="reviewCount">—</b><span>Published reviews</span></div>
@@ -1640,5 +1647,34 @@ window.setCosmosTheme = function(theme, btn) {
     }
   } catch (_e) {}
 })();
+  async function updateTikTokLiveBanner() {
+  try {
+    const r = await fetch('/api/now-playing');
+    if (!r.ok) return;
+    const data = await r.json();
+    const live = data.tiktokLive || {};
+    const banner = document.getElementById('tiktokLiveBanner');
+    const links = document.getElementById('tiktokLiveLinks');
+    if (!banner || !links) return;
+
+    const active = [];
+    if (live.emerieco?.isLive) {
+      active.push('<a class="btn" href="https://www.tiktok.com/@emeriegmz/live" target="_blank" rel="noopener">Watch Emerieco (@emeriegmz) ↗</a>');
+    }
+    if (live.jayclerr?.isLive) {
+      active.push('<a class="btn" href="https://www.tiktok.com/@jayclerronone/live" target="_blank" rel="noopener">Watch Jayclerr (@jayclerronone) ↗</a>');
+    }
+
+    if (active.length > 0) {
+      links.innerHTML = active.join('');
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  } catch (_e) {}
+}
+
+updateTikTokLiveBanner();
+setInterval(updateTikTokLiveBanner, 15000);
 </script>
 </body></html>
