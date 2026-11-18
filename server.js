@@ -100,13 +100,7 @@ function readDB() {
       topTracks: [],
       submissions: []
     };
-          score: null,
-          review: null,
-          communityRatings: [],
-          created_at: new Date().toISOString()
-        }
-      ]
-    };
+          
     fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2));
     return initial;
   }
