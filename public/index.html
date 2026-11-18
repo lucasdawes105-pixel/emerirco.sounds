@@ -1,0 +1,1644 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07130b"><title>emerieco.sounds — independent music reviews</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --bg:#030805;
+  --panel:rgba(10,23,14,.74);
+  --panel2:rgba(16,35,22,.82);
+  --line:rgba(85,224,120,.18);
+  --line-strong:rgba(184,243,107,.38);
+  --text:#f3fbf2;
+  --muted:#94b099;
+  --green:#39e56a;
+  --lime:#b8f36b;
+  --emerald:#0c3b1c;
+  --gold:#f7d060;
+  --glow:rgba(57,229,106,.24);
+}
+body[data-cosmos="supernova"]{
+  --bg:#020706;
+  --panel:rgba(8,22,20,.76);
+  --line:rgba(66,245,185,.22);
+  --green:#2ef2a6;
+  --lime:#a3ff7a;
+  --glow:rgba(46,242,166,.26);
+}
+body[data-cosmos="abyss"]{
+  --bg:#020403;
+  --panel:rgba(7,14,9,.82);
+  --line:rgba(85,224,120,.14);
+  --green:#4ade80;
+  --lime:#bef264;
+  --glow:rgba(74,222,128,.18);
+}
+
+html{scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',Inter,system-ui,-apple-system,sans-serif;
+  overflow-x:hidden;
+  position:relative;
+}
+h1,h2,h3,h4,.brand,.loader-brand,.score,.stat b{font-family:'Outfit','Plus Jakarta Sans',sans-serif}
+body.is-loading{overflow:hidden}
+a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}
+
+/* === COSMIC SPACE & CLOVER BACKDROP LAYERS === */
+#cosmosCanvas{
+  position:fixed;inset:0;width:100vw;height:100vh;z-index:-3;pointer-events:none;
+}
+.cosmos-nebula{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse 65% 45% at 82% 8%, rgba(28,112,53,.36) 0%, transparent 62%),
+    radial-gradient(ellipse 55% 50% at 12% 38%, rgba(16,74,34,.32) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 45% at 75% 82%, rgba(22,88,42,.26) 0%, transparent 65%),
+    radial-gradient(circle at 50% 50%, transparent 35%, rgba(1,4,2,.78) 100%);
+  transition:opacity .6s ease;
+}
+body[data-cosmos="supernova"] .cosmos-nebula{
+  background:
+    radial-gradient(ellipse 70% 50% at 80% 10%, rgba(22,135,105,.38) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 15% 45%, rgba(45,148,74,.32) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 70% 85%, rgba(18,96,68,.28) 0%, transparent 65%),
+    radial-gradient(circle at 50% 50%, transparent 30%, rgba(1,5,4,.82) 100%);
+}
+body[data-cosmos="abyss"] .cosmos-nebula{
+  background:
+    radial-gradient(ellipse 50% 35% at 85% 5%, rgba(20,76,36,.22) 0%, transparent 60%),
+    radial-gradient(circle at 50% 50%, transparent 25%, rgba(0,2,1,.92) 100%);
+}
+.clover-constellation{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.22;
+  background-image:
+    radial-gradient(rgba(184,243,107,.22) 1px, transparent 1px),
+    radial-gradient(rgba(57,229,106,.14) 1px, transparent 1px);
+  background-size:64px 64px, 32px 32px;
+  background-position:0 0, 16px 16px;
+  mask-image:radial-gradient(circle at 50% 40%, black 20%, transparent 85%);
+  -webkit-mask-image:radial-gradient(circle at 50% 40%, black 20%, transparent 85%);
+}
+
+/* Cosmic Loader */
+#cosmicLoader{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;
+  background:radial-gradient(circle at 50% 45%,#154c25 0%,#07180c 45%,#020603 100%);
+  overflow:hidden;opacity:1;visibility:visible;
+  transition:opacity .7s cubic-bezier(.22,1,.36,1),visibility .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1);
+}
+#cosmicLoader.is-hidden{opacity:0;visibility:hidden;pointer-events:none;transform:scale(1.03)}
+.loader-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.loader-star{position:absolute;border-radius:50%;background:#e3ffe8;box-shadow:0 0 10px rgba(57,229,106,.85);animation:starTwinkle var(--dur,3.5s) ease-in-out infinite alternate;animation-delay:var(--delay,0s)}
+.loader-nebula{position:absolute;width:min(74vw,520px);height:min(74vw,520px);border-radius:50%;background:radial-gradient(circle,rgba(57,229,106,.22) 0%,rgba(184,243,107,.07) 45%,transparent 72%);filter:blur(26px);pointer-events:none}
+.loader-stage{position:relative;width:min(240px,56vw);height:min(240px,56vw);display:grid;place-items:center;margin-bottom:26px}
+.orbit{position:absolute;border-radius:50%;pointer-events:none}
+.orbit-1{inset:6%;border:1px solid rgba(57,229,106,.34);box-shadow:0 0 28px rgba(57,229,106,.16),inset 0 0 18px rgba(57,229,106,.1);animation:spinCW 14s linear infinite}
+.orbit-1::after{content:"";position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--lime);box-shadow:0 0 14px var(--lime),0 0 24px var(--green)}
+.orbit-2{inset:20%;border:1px dashed rgba(184,243,107,.38);animation:spinCCW 10s linear infinite}
+.orbit-2::after{content:"";position:absolute;bottom:-3.5px;left:50%;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+.orbit-3{inset:33%;border:1px solid rgba(241,248,240,.16);animation:spinCW 7s linear infinite}
+.loader-clover{position:relative;z-index:2;font-size:clamp(66px,16vw,92px);line-height:1;color:var(--green);text-shadow:0 0 28px rgba(57,229,106,.8),0 0 60px rgba(184,243,107,.4);filter:drop-shadow(0 10px 28px rgba(57,229,106,.55));animation:cloverFloatRotate 3.6s ease-in-out infinite;user-select:none}
+.loader-brand{position:relative;z-index:2;font-weight:900;letter-spacing:-1.2px;font-size:clamp(28px,5.5vw,36px);color:var(--text);margin:0}
+.loader-brand b{color:var(--green)}
+.loader-sub{position:relative;z-index:2;margin-top:8px;font-size:10.5px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--green)}
+.loader-bar-wrap{position:relative;z-index:2;width:min(320px,80vw);height:6px;margin-top:24px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(57,229,106,.26);overflow:hidden;box-shadow:0 0 20px rgba(3,8,5,.9)}
+.loader-bar-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--lime),#e4ffb5);box-shadow:0 0 16px rgba(57,229,106,.9);transition:width .25s ease-out}
+.loader-status{position:relative;z-index:2;margin-top:12px;font-size:10px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;color:var(--muted)}
+
+/* Page & Section Warp */
+#pageWarp{position:fixed;inset:0;z-index:9998;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 50%,rgba(19,68,33,.96) 0%,rgba(4,12,7,.98) 65%,#010402 100%);backdrop-filter:blur(16px);opacity:0;visibility:hidden;transform:scale(1.04);transition:opacity .38s cubic-bezier(.22,1,.36,1),visibility .38s cubic-bezier(.22,1,.36,1),transform .38s cubic-bezier(.22,1,.36,1)}
+#pageWarp.is-active{opacity:1;visibility:visible;transform:scale(1);pointer-events:auto}
+.warp-ring{position:relative;width:86px;height:86px;border-radius:50%;border:1px solid rgba(57,229,106,.45);box-shadow:0 0 34px rgba(57,229,106,.32),inset 0 0 22px rgba(57,229,106,.16);display:grid;place-items:center}
+.warp-ring::before{content:"";position:absolute;inset:-8px;border-radius:50%;border:1px dashed rgba(184,243,107,.5);animation:spinCW 4s linear infinite}
+.warp-clover{font-size:38px;color:var(--green);filter:drop-shadow(0 0 18px rgba(57,229,106,.8));animation:cloverFloatRotate 1.8s ease-in-out infinite}
+.warp-label{font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--lime)}
+#scrollProgress{position:fixed;top:0;left:0;height:2.5px;width:0%;z-index:30;pointer-events:none;background:linear-gradient(90deg,var(--green),var(--lime),var(--gold));box-shadow:0 0 12px rgba(57,229,106,.8);transition:width .1s linear}
+
+/* Header & Glass Nav */
+.top{
+  height:72px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 max(4vw,20px);position:sticky;top:0;z-index:20;
+  background:rgba(4,12,7,.76);backdrop-filter:blur(22px) saturate(150%);
+  border-bottom:1px solid var(--line);
+}
+.brand{font-weight:900;letter-spacing:-1px;font-size:21px;display:flex;align-items:center;gap:8px}
+.brand-mark{
+  width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+  background:linear-gradient(135deg,rgba(57,229,106,.22),rgba(184,243,107,.1));
+  border:1px solid rgba(57,229,106,.45);color:var(--lime);font-size:15px;
+  box-shadow:0 0 16px rgba(57,229,106,.25);
+}
+.brand b{color:var(--green)}
+.nav{display:flex;gap:18px;color:var(--muted);font-size:12.5px;font-weight:600;align-items:center}
+.nav a{position:relative;padding:6px 2px;transition:color .25s ease}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--lime));transform:scaleX(0);transform-origin:center;transition:transform .28s cubic-bezier(.22,1,.36,1)}
+.nav a:hover::after,.nav a.is-active::after{transform:scaleX(1)}
+.nav a:hover,.nav a.is-active{color:white}
+
+.header-right{display:flex;align-items:center;gap:8px}
+.cosmos-switcher{
+  display:inline-flex;align-items:center;gap:4px;padding:4px;border-radius:999px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);
+}
+.cos-btn{
+  border:0;background:transparent;color:var(--muted);font-size:10px;font-weight:800;
+  padding:5px 9px;border-radius:999px;cursor:pointer;letter-spacing:.4px;transition:all .2s ease;
+}
+.cos-btn:hover{color:white}
+.cos-btn.active{background:linear-gradient(120deg,var(--green),var(--lime));color:#041108;font-weight:900}
+
+.menu-btn{display:none;background:rgba(255,255,255,.05);border:1px solid var(--line);color:white;border-radius:10px;padding:9px 12px;font-size:14px;cursor:pointer}
+.mobile-drawer{display:none;position:fixed;inset:72px 0 auto 0;z-index:19;background:rgba(5,14,8,.96);backdrop-filter:blur(22px);border-bottom:1px solid var(--line);padding:18px 24px 24px;flex-direction:column;gap:12px}
+.mobile-drawer.open{display:flex}
+.mobile-drawer a{padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;font-weight:700;color:var(--text)}
+
+.top-cta,.btn{
+  border:0;border-radius:11px;padding:11px 17px;
+  background:linear-gradient(120deg,var(--green),var(--lime));
+  color:#041108;font-size:12px;font-weight:900;letter-spacing:.2px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  box-shadow:0 6px 20px rgba(57,229,106,.22);
+  transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s ease,filter .2s ease;
+}
+.btn:hover,.top-cta:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(57,229,106,.38);filter:brightness(1.06)}
+.btn:active,.top-cta:active{transform:translateY(0) scale(.98)}
+.ghost{background:rgba(255,255,255,.04);color:white;border:1px solid var(--line);box-shadow:none;backdrop-filter:blur(10px)}
+.ghost:hover{border-color:var(--lime);background:rgba(57,229,106,.12);box-shadow:0 8px 22px rgba(57,229,106,.14)}
+
+/* Main & Hero */
+main{max-width:1160px;margin:auto;padding:42px 24px 160px;transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .45s cubic-bezier(.22,1,.36,1),filter .45s cubic-bezier(.22,1,.36,1)}
+body.is-warping main{opacity:.32;transform:scale(.988) translateY(6px);filter:blur(3px)}
+section[id]{scroll-margin-top:90px}
+
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:center;padding:24px 0 50px}
+.eyebrow{font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--lime);font-weight:900;display:inline-flex;align-items:center;gap:8px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px var(--lime);animation:pulseDot 1.8s ease-in-out infinite}
+.hero h1{font-size:clamp(44px,7.2vw,82px);font-weight:900;line-height:.93;letter-spacing:-3.5px;margin:16px 0}
+.hero h1 em{font-style:normal;background:linear-gradient(120deg,var(--green),var(--lime),#e5ffba);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 6px 24px rgba(57,229,106,.25))}
+.hero p{max-width:530px;color:#b8ccb9;font-size:15px;line-height:1.75}
+.actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:26px}
+
+/* Cosmic Clover Core Visual Card */
+.visual{
+  border:1px solid var(--line-strong);border-radius:26px;min-height:330px;
+  background:radial-gradient(circle at 50% 44%,rgba(34,116,58,.46) 0%,rgba(10,24,15,.85) 62%,rgba(4,10,6,.95) 100%);
+  backdrop-filter:blur(18px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 28px 70px rgba(0,0,0,.6),inset 0 0 50px rgba(57,229,106,.12);
+}
+.visual::before{
+  content:"♣";position:absolute;top:16px;left:20px;font-size:14px;color:rgba(184,243,107,.45);
+}
+.visual::after{
+  content:"☘";position:absolute;top:16px;right:20px;font-size:14px;color:rgba(184,243,107,.45);
+}
+.visual-ring{position:absolute;width:238px;height:238px;border-radius:50%;border:1px dashed rgba(184,243,107,.32);animation:spinCW 26s linear infinite}
+.visual-ring-inner{position:absolute;width:176px;height:176px;border-radius:50%;border:1px solid rgba(57,229,106,.24);animation:spinCCW 18s linear infinite}
+.clover{font-size:116px;filter:drop-shadow(0 16px 40px rgba(57,229,106,.55));animation:cloverFloatRotate 4.5s ease-in-out infinite;z-index:2;user-select:none}
+.eq-bars{display:flex;align-items:flex-end;gap:5px;height:28px;margin-top:10px;z-index:2}
+.eq-bars i{display:block;width:4px;border-radius:4px;background:linear-gradient(180deg,var(--lime),var(--green));box-shadow:0 0 10px rgba(57,229,106,.5);animation:eqBounce var(--t,.9s) ease-in-out infinite alternate}
+.visual small{position:absolute;bottom:20px;letter-spacing:3.2px;color:#d6f2d9;font-size:10px;font-weight:900}
+
+/* Glassmorphic Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:60px}
+.stat,.panel{
+  border:1px solid var(--line);
+  background:linear-gradient(165deg,rgba(16,35,22,.72),rgba(7,16,10,.82));
+  backdrop-filter:blur(16px);
+  border-radius:18px;padding:20px 22px;position:relative;overflow:hidden;
+  transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;
+}
+.stat::after{
+  content:"☘";position:absolute;right:14px;bottom:10px;font-size:26px;opacity:.07;color:var(--lime);pointer-events:none;
+}
+.stat:hover{transform:translateY(-4px);border-color:var(--line-strong);box-shadow:0 16px 36px rgba(0,0,0,.45),0 0 24px var(--glow)}
+.stat b{display:block;font-size:28px;font-weight:900;color:var(--text);letter-spacing:-.8px}
+.stat span{font-size:10px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase;font-weight:800}
+
+/* Reviews Controls & Cards */
+.head{display:flex;align-items:end;justify-content:space-between;margin-bottom:20px;gap:14px;flex-wrap:wrap}
+.head h2{margin:7px 0 0;font-size:30px;font-weight:900;letter-spacing:-1.1px}
+.head p{font-size:12px;color:var(--muted);margin:0}
+.controls-bar{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  margin-bottom:20px;padding:12px 16px;border:1px solid var(--line);border-radius:16px;
+  background:var(--panel);backdrop-filter:blur(16px);
+}
+.genre-pills{display:flex;gap:6px;flex-wrap:wrap}
+.g-pill{border:1px solid var(--line);background:rgba(4,11,6,.75);color:var(--muted);border-radius:999px;padding:6px 13px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s ease}
+.g-pill:hover{color:white;border-color:var(--line-strong)}
+.g-pill.active{background:linear-gradient(120deg,var(--green),var(--lime));color:#041108;border-color:transparent;font-weight:900;box-shadow:0 4px 14px rgba(57,229,106,.28)}
+.search-sort{display:flex;gap:8px;flex-wrap:wrap;flex:1;justify-content:flex-end;min-width:240px}
+.search-sort input,.search-sort select{padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:rgba(4,11,6,.82);color:white;font-size:12px;outline:none}
+.search-sort input{min-width:185px}
+.search-sort input:focus,.search-sort select:focus{border-color:var(--lime)}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.review{
+  border:1px solid var(--line);
+  background:linear-gradient(170deg,rgba(14,31,19,.78),rgba(6,15,9,.88));
+  backdrop-filter:blur(16px);
+  border-radius:20px;overflow:hidden;display:flex;flex-direction:column;
+  transition:transform .28s cubic-bezier(.22,1,.36,1),border-color .28s ease,box-shadow .28s ease;
+}
+.review:hover{transform:translateY(-5px);border-color:var(--line-strong);box-shadow:0 20px 42px rgba(0,0,0,.52),0 0 28px var(--glow)}
+.cover{
+  height:156px;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 25%,rgba(57,229,106,.34),rgba(13,34,20,.92) 72%);
+  font-size:52px;position:relative;overflow:hidden;border-bottom:1px solid rgba(85,224,120,.14);
+}
+.cover::before{
+  content:"";position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.22) 1px, transparent 1px);
+  background-size:22px 22px;opacity:.35;
+}
+.cover-badge{position:absolute;top:12px;left:12px;background:rgba(4,11,6,.82);backdrop-filter:blur(8px);border:1px solid rgba(247,208,96,.5);color:var(--gold);font-size:9px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+.cover-play{position:absolute;bottom:12px;right:12px;border:0;border-radius:999px;padding:7px 13px;background:linear-gradient(120deg,var(--green),var(--lime));color:#041108;font-size:11px;font-weight:900;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:transform .2s ease}
+.cover-play:hover{transform:scale(1.06)}
+.review-body{padding:19px;display:flex;flex-direction:column;flex:1}
+.tag{color:var(--lime);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900;display:flex;justify-content:space-between;align-items:center}
+.comm-chip{color:var(--gold);font-size:10px;font-weight:800}
+.review h3{margin:8px 0 3px;font-size:18px;font-weight:800;letter-spacing:-.3px}
+.muted{color:var(--muted);font-size:12px}
+.rating{display:flex;gap:10px;align-items:center;margin-top:14px}
+.score{font-size:24px;color:var(--lime);font-weight:900}
+.score.top-score{color:var(--gold);text-shadow:0 0 16px rgba(247,208,96,.42)}
+.bar{height:6px;flex:1;background:rgba(255,255,255,.1);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--lime));border-radius:6px;box-shadow:0 0 10px rgba(57,229,106,.5)}
+.review-body p{color:#c9decb;font-size:12.5px;line-height:1.65;margin:12px 0 14px;flex:1}
+.review-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:11px;border-top:1px solid rgba(255,255,255,.07);font-size:11px}
+.link-action{color:var(--lime);font-weight:800;display:inline-flex;align-items:center;gap:4px}
+.link-action:hover{text-decoration:underline}
+.rate-pill-btn{border:1px solid var(--line-strong);background:rgba(57,229,106,.1);color:var(--lime);border-radius:999px;padding:4px 11px;font-size:10px;font-weight:800;cursor:pointer;transition:all .2s ease}
+.rate-pill-btn:hover{background:rgba(57,229,106,.24);color:white}
+
+/* Stream Widgets Showcase Section */
+.widgets-promo{margin-top:64px;border:1px solid var(--line-strong);border-radius:24px;padding:28px;background:linear-gradient(155deg,rgba(16,41,24,.82),rgba(7,16,10,.88));backdrop-filter:blur(18px);display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center}
+.widgets-promo h3{margin:8px 0;font-size:26px;letter-spacing:-1px}
+.widget-preview-box{border:1px solid var(--line-strong);border-radius:16px;padding:18px;background:rgba(3,9,5,.85);box-shadow:0 16px 36px rgba(0,0,0,.5)}
+
+/* Submit Form & Dropzone */
+.submit{display:grid;grid-template-columns:.78fr 1.22fr;gap:28px;margin-top:68px;align-items:start}
+.intro h2{font-size:38px;font-weight:900;line-height:1.04;letter-spacing:-1.5px;margin:12px 0}
+.intro p{font-size:13.5px;color:#b8ccb9;line-height:1.75}
+.policy-card{margin-top:18px;padding:16px 18px;border-radius:16px;border:1px solid var(--line-strong);background:rgba(11,26,16,.78);backdrop-filter:blur(14px);font-size:12px;color:#d2e6d4;line-height:1.65}
+.form{border:1px solid var(--line);border-radius:22px;background:var(--panel);backdrop-filter:blur(18px);padding:26px;box-shadow:0 22px 52px rgba(0,0,0,.45)}
+.form h3{margin:0 0 5px;font-size:21px;font-weight:800}
+.help{color:var(--muted);font-size:11px;margin-bottom:17px}
+.field{display:grid;gap:7px;margin:13px 0}
+.field label{font-size:11px;font-weight:800;color:#d6e8d8}
+.field input,.field select,.field textarea{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:rgba(4,11,6,.82);color:white;font-size:12px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--lime);box-shadow:0 0 0 3px rgba(57,229,106,.14)}
+.field textarea{min-height:82px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.filebox{border:1.5px dashed rgba(85,224,120,.45);border-radius:14px;padding:18px;background:rgba(6,16,9,.75);text-align:center;cursor:pointer;transition:border-color .2s ease,background .2s ease;position:relative}
+.filebox:hover,.filebox.dragover{border-color:var(--lime);background:rgba(16,40,23,.85)}
+.filebox input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.filebox-title{font-size:12.5px;font-weight:800;color:var(--text)}
+.filebox-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.or{text-align:center;color:var(--muted);font-size:10px;letter-spacing:1.8px;margin:10px;font-weight:800}
+.form .btn{width:100%;margin-top:8px;padding:14px}
+.message{display:none;margin-top:12px;padding:12px 14px;border-radius:11px;background:rgba(57,229,106,.14);border:1px solid var(--line-strong);color:var(--lime);font-size:12px;line-height:1.5}
+
+/* Priority Tiers */
+.queue{margin-top:64px}
+.tiers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+.tier{
+  border:1px solid var(--line);border-radius:20px;padding:22px;
+  background:linear-gradient(160deg,rgba(14,32,20,.78),rgba(7,16,10,.86));
+  backdrop-filter:blur(16px);position:relative;overflow:hidden;
+  transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease;
+}
+.tier::after{content:"♣";position:absolute;right:18px;top:14px;font-size:34px;opacity:.08;color:var(--lime)}
+.tier:hover{transform:translateY(-4px);border-color:var(--line-strong);box-shadow:0 16px 36px rgba(0,0,0,.42),0 0 24px var(--glow)}
+.tier.featured{border-color:var(--line-strong);background:linear-gradient(160deg,rgba(20,51,30,.85),rgba(8,19,12,.9))}
+.tier h4{margin:6px 0;font-size:19px}
+.tier p{font-size:12.5px;color:#b8ccb9;line-height:1.65}
+.tier .price{font-size:28px;font-weight:900;color:var(--lime);margin:6px 0}
+.tier button{width:100%;margin-top:12px}
+
+/* Queue List */
+.queue-list{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);backdrop-filter:blur(16px)}
+.qrow{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);font-size:12px;transition:background .2s ease}
+.qrow:hover{background:rgba(57,229,106,.05)}
+.qrow:last-child{border:0}
+.qnum{color:var(--lime);font-weight:900;width:26px;font-size:13px}
+.qrow small{display:block;color:var(--muted);margin-top:3px}
+.q-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{border:1px solid var(--line-strong);color:var(--lime);padding:5px 11px;border-radius:20px;font-size:9px;font-weight:900;letter-spacing:.9px;white-space:nowrap}
+.pill.super{background:rgba(57,229,106,.18);border-color:var(--lime);box-shadow:0 0 12px rgba(57,229,106,.2)}
+.mini-play{border:1px solid var(--line);background:rgba(5,13,8,.82);color:var(--text);border-radius:999px;padding:6px 11px;font-size:10px;font-weight:800;cursor:pointer;transition:all .2s ease}
+.mini-play:hover{border-color:var(--lime);color:var(--lime)}
+.empty{padding:26px;color:var(--muted);font-size:12px;text-align:center}
+
+/* Persistent Bottom Audio Dock */
+#audioDock{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(140%);z-index:25;width:min(760px,calc(100vw - 24px));background:rgba(8,21,12,.94);backdrop-filter:blur(24px);border:1px solid var(--line-strong);border-radius:20px;padding:14px 18px;box-shadow:0 24px 64px rgba(0,0,0,.8),0 0 30px rgba(57,229,106,.15);transition:transform .38s cubic-bezier(.22,1,.36,1)}
+#audioDock.active{transform:translateX(-50%) translateY(0)}
+.dock-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dock-meta{min-width:140px;max-width:220px}
+.dock-meta b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock-meta small{display:block;font-size:10px;color:var(--lime);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dockPlayer{flex:1;height:34px;min-width:160px}
+.dock-rate-toggle{border:1px solid var(--lime);background:rgba(57,229,106,.16);color:var(--lime);border-radius:999px;padding:6px 12px;font-size:11px;font-weight:900;cursor:pointer}
+.dock-rate-toggle:hover{background:var(--lime);color:#041108}
+.dock-close{background:none;border:0;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px}
+.dock-close:hover{color:white}
+
+.dock-rating-drawer{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1)}
+.dock-rating-drawer.open{display:block}
+.crit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin:10px 0}
+.crit-item{background:rgba(4,11,6,.8);border:1px solid var(--line);border-radius:11px;padding:8px 12px}
+.crit-head{display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:4px}
+.crit-head span:last-child{color:var(--lime)}
+.crit-item input[type="range"]{width:100%;accent-color:var(--green);cursor:pointer}
+.vibe-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:8px}
+.vibe-chips{display:flex;gap:6px;flex-wrap:wrap}
+.vibe-chip{border:1px solid var(--line);background:rgba(5,13,8,.82);color:var(--muted);border-radius:999px;padding:5px 10px;font-size:10.5px;font-weight:700;cursor:pointer}
+.vibe-chip.selected{border-color:var(--gold);color:var(--gold);background:rgba(247,208,96,.14)}
+
+#toastBox{position:fixed;top:84px;right:20px;z-index:40;display:grid;gap:8px;max-width:min(360px,calc(100vw - 40px))}
+.toast{background:rgba(11,28,16,.95);backdrop-filter:blur(16px);border:1px solid var(--lime);color:var(--text);padding:12px 15px;border-radius:13px;font-size:12px;line-height:1.45;box-shadow:0 16px 38px rgba(0,0,0,.6);animation:toastIn .3s ease}
+
+/* Reveal & Keyframes */
+.reveal-block{opacity:0;transform:translateY(22px) scale(.985);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1)}
+.reveal-block.is-visible{opacity:1;transform:translateY(0) scale(1)}
+.section-flash{animation:sectionSpotlight .95s cubic-bezier(.22,1,.36,1)}
+
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+@keyframes eqBounce{0%{height:6px}100%{height:26px}}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sectionSpotlight{0%{box-shadow:0 0 0 0 rgba(57,229,106,0)}35%{box-shadow:0 0 0 2px rgba(57,229,106,.5),0 0 40px rgba(57,229,106,.22)}100%{box-shadow:0 0 0 0 rgba(57,229,106,0)}}
+@keyframes cloverFloatRotate{0%,100%{transform:translateY(0) rotate(-9deg) scale(1)}50%{transform:translateY(-11px) rotate(9deg) scale(1.06)}}
+@keyframes spinCW{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes spinCCW{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}
+@keyframes starTwinkle{0%{opacity:.18;transform:scale(.85)}100%{opacity:.95;transform:scale(1.25)}}
+
+footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filter:blur(14px);padding:28px max(5vw,20px);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--muted);font-size:11.5px}
+
+/* Spin the Wheel for Free Skip */
+.wheel-section{margin-top:60px;border:1px solid var(--line-strong);border-radius:24px;padding:28px;background:radial-gradient(circle at 80% 30%,rgba(22,64,34,.75) 0%,rgba(8,19,12,.86) 68%);backdrop-filter:blur(18px);display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:center}
+.wheel-stage{position:relative;width:270px;height:270px;margin:auto}
+.wheel-pin{position:absolute;top:-12px;left:50%;transform:translateX(-50%);z-index:5;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid var(--gold);filter:drop-shadow(0 4px 10px rgba(0,0,0,.7))}
+.wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;width:54px;height:54px;border-radius:50%;background:#041108;border:2px solid var(--lime);display:grid;place-items:center;font-size:22px;box-shadow:0 0 22px rgba(57,229,106,.65);cursor:pointer}
+#freeSkipWheel{width:270px;height:270px;border-radius:50%;box-shadow:0 0 0 5px rgba(57,229,106,.32),0 18px 42px rgba(0,0,0,.65)}
+.wheel-result{margin-top:14px;padding:12px 15px;border-radius:13px;border:1px solid var(--line-strong);background:rgba(4,11,6,.82);font-size:12.5px;color:var(--lime);font-weight:800;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center}
+
+/* Curated Top 5 Artists & Top 10 Tracks */
+.curated-section{margin-top:64px;border:1px solid var(--line-strong);border-radius:24px;padding:28px;background:radial-gradient(circle at 15% 20%,rgba(22,64,34,.72) 0%,rgba(7,16,10,.86) 68%);backdrop-filter:blur(18px)}
+.curated-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.c-tab{border:1px solid var(--line);background:rgba(4,11,6,.78);color:var(--muted);border-radius:999px;padding:8px 16px;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s ease}
+.c-tab:hover{color:white;border-color:var(--line-strong)}
+.c-tab.active{background:linear-gradient(120deg,var(--green),var(--lime));color:#041108;border-color:transparent;font-weight:900}
+.curated-grid{display:grid;gap:12px;margin-top:18px}
+.rank-card{display:flex;align-items:center;gap:16px;padding:15px 18px;border:1px solid var(--line);border-radius:15px;background:rgba(7,16,10,.78);transition:transform .2s ease,border-color .2s ease}
+.rank-card:hover{transform:translateX(5px);border-color:var(--lime)}
+.rank-badge{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-weight:900;font-size:15px;background:rgba(19,64,32,.85);color:var(--lime);border:1px solid var(--line-strong);flex-shrink:0}
+.rank-card.rank-1 .rank-badge{background:linear-gradient(135deg,#f7d060,#d49b27);color:#041108;border:none;box-shadow:0 0 20px rgba(247,208,96,.45)}
+.rank-info{flex:1;min-width:0}
+.rank-info h4{margin:0;font-size:15.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rank-info p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+
+/* Host / Admin Profile Card */
+.host-section{margin-top:60px;border:1px solid var(--line-strong);border-radius:24px;padding:28px;background:radial-gradient(circle at 85% 20%,rgba(24,68,36,.75) 0%,rgba(7,16,10,.88) 70%);backdrop-filter:blur(18px);display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center}
+.host-pfp-wrap{position:relative;width:124px;height:124px;border-radius:50%;padding:4px;background:linear-gradient(135deg,var(--green),var(--lime),var(--gold));box-shadow:0 14px 36px rgba(57,229,106,.32);flex-shrink:0}
+.host-pfp{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#07140c;display:grid;place-items:center;font-size:48px;color:var(--lime);overflow:hidden}
+.host-pfp img{width:100%;height:100%;object-fit:cover;display:block}
+.host-verified{position:absolute;bottom:2px;right:2px;background:var(--gold);color:#041108;font-size:10px;font-weight:900;padding:3px 9px;border-radius:999px;border:2px solid #041108}
+.host-info h2{margin:6px 0 4px;font-size:28px;letter-spacing:-1px}
+.host-role{color:var(--lime);font-size:12px;font-weight:800;margin-bottom:10px}
+.host-bio{color:#d0e4d2;font-size:13.5px;line-height:1.7;margin:0 0 16px;max-width:680px}
+.host-socials{display:flex;gap:8px;flex-wrap:wrap}
+.social-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(5,14,8,.82);color:var(--text);font-size:12px;font-weight:800;transition:all .2s ease}
+.social-chip:hover{border-color:var(--lime);background:rgba(57,229,106,.16);color:var(--lime);transform:translateY(-2px)}
+
+.admin-only{display:none !important}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  #cosmicLoader,#pageWarp,main,.reveal-block,.review,.stat,.tier,.qrow,.btn,.top-cta,.nav a::after,#audioDock{transition:none !important;animation:none !important}
+  .reveal-block{opacity:1;transform:none}
+  .loader-clover,.orbit-1,.orbit-2,.orbit-3,.loader-star,.warp-ring::before,.warp-clover,.clover,.visual-ring,.visual-ring-inner,.eq-bars i,.live-dot{animation:none !important}
+}
+@media(max-width:980px){.top .cosmos-switcher{display:none}}
+@media(max-width:860px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .widgets-promo,.wheel-section{grid-template-columns:1fr;padding:22px 18px}
+}
+@media(max-width:740px){
+  .nav{display:none}
+  .menu-btn{display:inline-flex;align-items:center;justify-content:center;min-width:42px;min-height:42px}
+  .top{height:64px;padding:0 14px}
+  .mobile-drawer{inset:64px 0 auto 0;max-height:calc(100dvh - 64px);overflow-y:auto;padding:16px 18px 28px}
+  .brand{font-size:18px;gap:6px}
+  .brand-mark{width:25px;height:25px;font-size:13px}
+  .top-cta{padding:9px 12px;font-size:11px}
+  .hero{grid-template-columns:1fr;gap:22px;padding:12px 0 34px}
+  .hero h1{font-size:clamp(38px,11vw,54px);letter-spacing:-2.2px;margin:12px 0}
+  .hero p{font-size:14px;line-height:1.65}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}
+  .actions .btn:first-child{grid-column:1/-1}
+  .visual{min-height:220px;border-radius:22px}
+  .clover{font-size:88px}
+  .visual-ring{width:190px;height:190px}
+  .visual-ring-inner{width:140px;height:140px}
+  .submit{grid-template-columns:1fr;gap:20px;margin-top:46px}
+  .intro h2{font-size:30px;letter-spacing:-1px}
+  .cards{grid-template-columns:1fr 1fr;gap:12px}
+  .controls-bar{padding:10px 12px;gap:10px}
+  .genre-pills{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;width:100%}
+  .genre-pills::-webkit-scrollbar{display:none}
+  .g-pill{flex-shrink:0;padding:7px 13px}
+  .search-sort{width:100%;min-width:0;justify-content:stretch}
+  .search-sort input{flex:1;min-width:0;font-size:16px}
+  .search-sort select{font-size:14px}
+  .field input,.field select,.field textarea{font-size:16px}
+  .crit-grid{grid-template-columns:1fr}
+  .curated-section,.wheel-section,.host-section{padding:20px 16px;border-radius:20px;margin-top:44px}
+  .head h2{font-size:24px}
+  .rank-card{padding:12px 14px;gap:12px;flex-wrap:wrap}
+  .rank-info{min-width:calc(100% - 56px)}
+  .qrow{flex-wrap:wrap;padding:14px 15px;gap:10px}
+  .q-actions{width:100%;margin-left:38px;justify-content:space-between}
+  #audioDock{bottom:10px;width:calc(100vw - 16px);padding:12px 14px;border-radius:16px;max-height:82dvh;overflow-y:auto}
+  .dock-meta{max-width:calc(100% - 125px)}
+  #dockPlayer{order:3;width:100%;flex-basis:100%}
+}
+@media(max-width:680px){
+  .host-section{grid-template-columns:1fr;text-align:center;justify-items:center;gap:16px}
+  .host-pfp-wrap{width:102px;height:102px}
+  .host-info h2{font-size:24px}
+  .host-socials{justify-content:center}
+}
+@media(max-width:500px){
+  main{padding:20px 14px 150px}
+  .cards{grid-template-columns:1fr}
+  .two,.tiers{grid-template-columns:1fr}
+  .actions{grid-template-columns:1fr}
+  .stats{gap:9px;margin-bottom:40px}
+  .stat{padding:14px 15px;border-radius:15px}
+  .stat b{font-size:22px}
+  .form{padding:18px 15px;border-radius:18px}
+  .wheel-stage{width:230px;height:230px}
+  #freeSkipWheel{width:230px;height:230px}
+  .wheel-center{width:46px;height:46px;font-size:19px}
+  footer{padding:22px 16px;flex-direction:column;text-align:center;align-items:center}
+}
+</style></head><body class="is-loading" data-cosmos="clover">
+<canvas id="cosmosCanvas" aria-hidden="true"></canvas>
+<div class="cosmos-nebula" aria-hidden="true"></div>
+<div class="clover-constellation" aria-hidden="true"></div>
+
+<div id="scrollProgress" aria-hidden="true"></div>
+<div id="toastBox" aria-live="polite"></div>
+
+<div id="pageWarp" aria-hidden="true">
+  <div class="warp-ring"><div class="warp-clover">☘</div></div>
+  <div class="warp-label" id="warpLabel">SWITCHING FREQUENCY</div>
+</div>
+
+<div id="cosmicLoader" role="status" aria-live="polite" aria-label="Loading emerieco.sounds">
+  <div class="loader-stars" id="loaderStars" aria-hidden="true"></div>
+  <div class="loader-nebula" aria-hidden="true"></div>
+  <div class="loader-stage" aria-hidden="true">
+    <div class="orbit orbit-1"></div>
+    <div class="orbit orbit-2"></div>
+    <div class="orbit orbit-3"></div>
+    <div class="loader-clover">☘</div>
+  </div>
+  <div class="loader-brand">emerieco<b>.</b>sounds</div>
+  <div class="loader-sub">INDEPENDENT MUSIC REVIEW PLATFORM</div>
+  <div class="loader-bar-wrap" aria-hidden="true"><div class="loader-bar-fill" id="loaderBarFill"></div></div>
+  <div class="loader-status">TUNING IN TO THE NEXT WAVE</div>
+</div>
+
+<header class="top">
+  <a class="brand" href="#top"><span class="brand-mark">☘</span>emerieco<b>.</b>sounds</a>
+  <nav class="nav">
+    <a href="#reviews">Reviews</a>
+    <a href="#curated">Top Lists</a>
+    <a href="#host">Host</a>
+    <a href="#submit">Submit music</a>
+    <a href="#priority">Priority options</a>
+    <a href="#queue">Queue</a>
+    <a href="/widgets" class="admin-only">Stream Widgets</a>
+    <a href="/admin" id="navAdminLink">Host Login</a>
+  </nav>
+  <div class="header-right">
+    <div class="cosmos-switcher" role="group" aria-label="Space backdrop theme">
+      <button type="button" class="cos-btn active" data-theme="clover" onclick="setCosmosTheme('clover',this)">☘ Nebula</button>
+      <button type="button" class="cos-btn" data-theme="supernova" onclick="setCosmosTheme('supernova',this)">✦ Supernova</button>
+      <button type="button" class="cos-btn" data-theme="abyss" onclick="setCosmosTheme('abyss',this)">🌑 Deep Space</button>
+    </div>
+    <a class="top-cta" href="#submit">Submit a track ↗</a>
+    <button class="menu-btn" type="button" id="mobileMenuBtn" aria-label="Toggle Menu">☰</button>
+  </div>
+</header>
+
+<div class="mobile-drawer" id="mobileDrawer">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;border-bottom:1px solid rgba(255,255,255,.08)">
+    <span style="font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)">Space Backdrop</span>
+    <div class="cosmos-switcher" style="display:inline-flex" role="group" aria-label="Mobile space backdrop theme">
+      <button type="button" class="cos-btn active" data-theme="clover" onclick="setCosmosTheme('clover',this)">☘ Nebula</button>
+      <button type="button" class="cos-btn" data-theme="supernova" onclick="setCosmosTheme('supernova',this)">✦ Nova</button>
+      <button type="button" class="cos-btn" data-theme="abyss" onclick="setCosmosTheme('abyss',this)">🌑 Abyss</button>
+    </div>
+  </div>
+  <a href="#reviews">Reviews</a>
+    <a href="#curated">Top Lists</a>
+    <a href="#host">Host</a>
+  <a href="#submit">Submit music</a>
+  <a href="#priority">Priority options</a>
+  <a href="#queue">Submission queue</a>
+  <a href="/widgets" class="admin-only">Stream Widgets ↗</a>
+  <a href="/admin" id="drawerAdminLink">Host Login ↗</a>
+</div>
+
+<main>
+<section class="hero" id="top">
+  <div>
+    <div class="eyebrow"><span class="live-dot"></span> Independent music review platform</div>
+    <h1>THE NEXT WAVE<br>GETS <em>HEARD.</em></h1>
+    <p>Fresh music, honest ratings, and real feedback. Submit a song link or upload an audio file to enter the listening queue, rate tracks live by genre while they spin, or plug live widgets into your stream.</p>
+    <div class="actions">
+      <a class="btn" href="#submit">Submit your music ♣</a>
+      <a class="btn ghost" href="#reviews">Explore reviews</a>
+      <a class="btn ghost admin-only" href="/widgets">Stream overlays ↗</a>
+    </div>
+  </div>
+  <div class="visual">
+    <div class="visual-ring"></div>
+    <div class="visual-ring-inner"></div>
+    <div class="clover">☘</div>
+    <div class="eq-bars" aria-hidden="true">
+      <i style="--t:.65s"></i><i style="--t:.95s"></i><i style="--t:.55s"></i><i style="--t:1.1s"></i><i style="--t:.75s"></i><i style="--t:.85s"></i><i style="--t:.6s"></i>
+    </div>
+    <small>LISTEN CLOSE · SPEAK HONESTLY</small>
+  </div>
+</section>
+
+<section class="stats reveal-block">
+  <div class="stat"><b id="reviewCount">—</b><span>Published reviews</span></div>
+  <div class="stat"><b id="queueCount">—</b><span>Tracks waiting</span></div>
+  <div class="stat"><b id="avgScore">—</b><span>Average rating</span></div>
+  <div class="stat"><b>0–10</b><span>Genre-tuned scale</span></div>
+</section>
+
+<section id="reviews" class="reveal-block">
+  <div class="head">
+    <div><div class="eyebrow">The listening room</div><h2>Latest reviews</h2></div>
+    <p>Real submissions · Genre-specific live ratings</p>
+  </div>
+
+  <div class="controls-bar">
+    <div class="genre-pills" id="genrePills">
+      <button class="g-pill active" data-genre="ALL" type="button">All</button>
+      <button class="g-pill" data-genre="Hip-hop / Rap" type="button">Hip-hop / Rap</button>
+      <button class="g-pill" data-genre="R&B" type="button">R&B</button>
+      <button class="g-pill" data-genre="Pop" type="button">Pop</button>
+      <button class="g-pill" data-genre="Alternative" type="button">Alternative</button>
+      <button class="g-pill" data-genre="Electronic" type="button">Electronic</button>
+      <button class="g-pill" data-genre="Rock" type="button">Rock</button>
+    </div>
+    <div class="search-sort">
+      <input type="search" id="reviewSearch" placeholder="Search artist or track…">
+      <select id="reviewSort" aria-label="Sort reviews">
+        <option value="newest">Newest first</option>
+        <option value="highest">Highest rated</option>
+        <option value="lowest">Lowest rated</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="cards" id="reviewsGrid"><div class="panel muted">Loading published reviews…</div></div>
+</section>
+
+<section class="curated-section reveal-block" id="curated">
+  <div class="head">
+    <div>
+      <div class="eyebrow">👑 Host Certified Picks</div>
+      <h2>Emerieco’s Top Lists</h2>
+    </div>
+    <div class="curated-tabs">
+      <button class="c-tab active" type="button" onclick="switchCuratedTab('artists', this)">🏆 Top 5 Artists</button>
+      <button class="c-tab" type="button" onclick="switchCuratedTab('tracks', this)">🔥 Top 10 Tracks</button>
+    </div>
+  </div>
+  <div class="curated-grid" id="curatedArtistsList"><div class="empty">Loading Top 5 Artists…</div></div>
+  <div class="curated-grid" id="curatedTracksList" style="display:none"><div class="empty">Loading Top 10 Tracks…</div></div>
+</section>
+
+<section class="reveal-block" id="host" style="margin-top:60px">
+  <div class="head">
+    <div>
+      <div class="eyebrow">♣ Behind the Listening Room</div>
+      <h2>Meet the Hosts</h2>
+    </div>
+    <p>Curated &amp; reviewed live by Emerieco &amp; Jayclerr</p>
+  </div>
+  <div id="hostsContainer" style="display:grid;gap:18px"></div>
+</section>
+
+<section class="widgets-promo reveal-block admin-only">
+  <div>
+    <div class="eyebrow">♣ Built for Twitch · TikTok Live · OBS</div>
+    <h3>Streaming your listening room? Add live overlays.</h3>
+    <p class="muted" style="margin:0 0 16px">Drop transparent Browser Source widgets onto your stream — including a <b>Now Playing + Live Genre Score HUD</b>, an <b>Up Next Queue Ticker</b>, a <b>Lower-Third Chyron</b>, and a <b>Room Pulse CTA Card</b> that syncs automatically as songs play and chat votes.</p>
+    <a class="btn" href="/widgets">Open Stream Widget Studio ↗</a>
+  </div>
+  <div class="widget-preview-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:10px;font-weight:900;letter-spacing:1.8px;color:var(--lime)">● LIVE OBS OVERLAY PREVIEW</span>
+      <span style="font-size:10px;color:var(--green);font-weight:800" id="previewWidgetGenre">R&amp;B</span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div>
+        <div style="font-weight:950;font-size:16px" id="previewWidgetTrack">Velvet Static</div>
+        <div class="muted" id="previewWidgetArtist">Nadia Sol</div>
+      </div>
+      <div style="font-size:24px;font-weight:950;color:var(--gold)" id="previewWidgetScore">9.2</div>
+    </div>
+  </div>
+</section>
+
+<section class="submit reveal-block" id="submit">
+  <div class="intro">
+    <div class="eyebrow">Get your track heard</div>
+    <h2>Put your sound<br>in the spotlight.</h2>
+    <p>Send a streaming link, upload an audio file, or do both. New tracks enter the review queue immediately after submission. Only submit music you own or have permission to share.</p>
+    <div class="policy-card">
+      <b>Review policy:</b> Paid priority changes queue placement only. It never guarantees a high rating or a positive review. Every track gets the same honest ear.
+    </div>
+  </div>
+
+  <form class="form" id="submissionForm">
+    <h3>Submit a song</h3>
+    <div class="help">Free submission · MP3, WAV, M4A, AAC, OGG, FLAC · 30 MB max</div>
+    <div class="two">
+      <div class="field"><label>Artist name *</label><input name="artist" maxlength="80" required placeholder="Artist name"></div>
+      <div class="field"><label>Track title *</label><input name="track" maxlength="100" required placeholder="Song title"></div>
+    </div>
+    <div class="field"><label>Song link (optional if uploading)</label><input name="songUrl" type="url" placeholder="https://soundcloud.com/... or Spotify / YouTube"></div>
+    <div class="or">— AND / OR —</div>
+    <div class="field">
+      <label>Upload audio file</label>
+      <div class="filebox" id="fileDropZone">
+        <input name="audio" id="audioInput" type="file" accept=".mp3,.wav,.m4a,.aac,.ogg,.flac,audio/*">
+        <div class="filebox-title" id="fileLabel">Click or drag &amp; drop an audio file here</div>
+        <div class="filebox-sub" id="fileSub">Supports MP3, WAV, M4A, AAC, OGG, FLAC (Max 30 MB)</div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Genre</label><select name="genre"><option>Hip-hop / Rap</option><option>R&B</option><option>Pop</option><option>Alternative</option><option>Electronic</option><option>Rock</option><option>Other</option></select></div>
+      <div class="field"><label>Artist contact (optional)</label><input name="contact" placeholder="@instagram or social handle"></div>
+    </div>
+    <div class="field"><label>Anything we should know?</label><textarea name="note" maxlength="1000" placeholder="What inspired the track? What kind of feedback would help most?"></textarea></div>
+    <button class="btn" type="submit">Send track to review queue ♣</button>
+    <div class="message" id="submitMessage"></div>
+  </form>
+</section>
+
+<section id="priority" class="queue reveal-block">
+  <div class="head">
+    <div><div class="eyebrow">Move up the listening list</div><h2>Priority options</h2></div>
+    <p>Optional · Free queue is always available</p>
+  </div>
+  <div class="tiers">
+    <div class="tier">
+      <div class="eyebrow">Priority 01</div>
+      <h4>Skip</h4>
+      <div class="price" id="skipPrice">$5.00</div>
+      <p>Moves your submitted track ahead of standard free submissions. Review timing depends on the active queue.</p>
+      <button class="btn" type="button" onclick="buyPriority('skip')">Choose Skip ↗</button>
+    </div>
+    <div class="tier featured">
+      <div class="eyebrow">Priority 02 · Fastest</div>
+      <h4>Super Skip ♣</h4>
+      <div class="price" id="superPrice">$15.00</div>
+      <p>Highest queue priority — jumps straight to the front of the listening room. Still receives an honest, unbiased review.</p>
+      <button class="btn" type="button" onclick="buyPriority('super_skip')">Choose Super Skip ↗</button>
+    </div>
+  </div>
+  <div class="help" style="margin-top:10px" id="checkoutHint">Submit your track above first, then select Skip or Super Skip to upgrade that submission.</div>
+</section>
+
+
+<section class="wheel-section reveal-block" id="wheel">
+  <div>
+    <div class="eyebrow">♣ Community Queue Giveaway</div>
+    <h2 style="font-size:32px;letter-spacing:-1.2px;margin:10px 0">Spin the Wheel for a Free Skip</h2>
+    <p class="muted" style="font-size:13.5px;line-height:1.7;margin:0 0 16px">Every artist currently waiting in the standard queue gets an equal slice on the wheel. Spin live to randomly award one queued track a <b>Free Skip</b> straight ahead of standard submissions — and sync the spin live to your OBS stream overlay.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn" type="button" id="spinWheelBtn" style="display:none" onclick="spinFreeSkipWheel()">🎰 Spin for Free Skip ♣</button>
+      <a class="btn ghost admin-only" href="/widgets">Get OBS Wheel Widget ↗</a>
+    </div>
+    <div class="wheel-result" id="wheelResultBox">Loading queue entries onto the wheel…</div>
+  </div>
+  <div>
+    <div class="wheel-stage">
+      <div class="wheel-pin"></div>
+      <canvas id="freeSkipWheel" width="270" height="270"></canvas>
+      <div class="wheel-center" title="Free Skip Wheel">☘</div>
+    </div>
+  </div>
+</section>
+
+<section class="queue reveal-block" id="queue">
+  <div class="head">
+    <div><div class="eyebrow">What's coming up</div><h2>Submission queue</h2></div>
+    <p>Live listening order · Rate tracks as they play</p>
+  </div>
+  <div class="queue-list" id="queueList"><div class="empty">Loading queue…</div></div>
+</section>
+</main>
+
+<div id="audioDock" role="region" aria-label="Audio Preview & Genre Rating Player">
+  <div class="dock-top">
+    <div class="dock-meta">
+      <b id="dockTrack">Track Title</b>
+      <small id="dockArtist">Artist Name · Genre</small>
+    </div>
+    <audio id="dockPlayer" controls></audio>
+    <button class="dock-rate-toggle" type="button" id="toggleRateBtn">★ Rate Genre</button>
+    <button class="dock-close" type="button" id="dockClose" aria-label="Close audio player">✕</button>
+  </div>
+
+  <div class="dock-rating-drawer open" id="dockRatingDrawer">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px">
+      <span style="color:var(--green);font-weight:900;letter-spacing:1.2px;text-transform:uppercase" id="ratingGenreHeader">GENRE SCORING RUBRIC</span>
+      <span style="color:var(--gold);font-weight:900" id="liveAvgPreview">Your Score: 8.0 / 10</span>
+    </div>
+    <div class="crit-grid" id="criteriaSliders"></div>
+    <div class="vibe-row">
+      <div class="vibe-chips" id="vibeChips">
+        <button type="button" class="vibe-chip" data-vibe="🔥 Playlist Ready">🔥 Playlist Ready</button>
+        <button type="button" class="vibe-chip" data-vibe="💎 Hidden Gem">💎 Hidden Gem</button>
+        <button type="button" class="vibe-chip" data-vibe="🎛️ Clean Mix">🎛️ Clean Mix</button>
+        <button type="button" class="vibe-chip" data-vibe="⚡ High Energy">⚡ High Energy</button>
+      </div>
+      <button type="button" class="btn" style="padding:8px 14px" id="submitGenreRatingBtn">Send Live Rating ♣</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 emerieco.sounds · Independent music reviews</span>
+  <span>☘ Green means go. Keep the sound moving. · <a href="/admin" id="footerAdminLink" style="color:var(--green);font-weight:700">Host Login</a></span>
+</footer>
+
+<script>
+let latestSubmissionId=null;
+let isCurrentUserAdmin=false;
+fetch('/api/admin/session').then(r=>r.ok?r.json():null).then(s=>{
+ isCurrentUserAdmin=Boolean(s && s.isAdmin);
+ if(isCurrentUserAdmin){
+  const spinBtn=document.getElementById('spinWheelBtn');
+  if(spinBtn)spinBtn.style.display='inline-flex';
+  document.querySelectorAll('.admin-only').forEach(el=>el.classList.remove('admin-only'));
+  const navL=document.getElementById('navAdminLink');
+  const drawL=document.getElementById('drawerAdminLink');
+  const footL=document.getElementById('footerAdminLink');
+  if(navL)navL.textContent='Admin Console';
+  if(drawL)drawL.textContent='Admin Console ↗';
+  if(footL)footL.textContent='Admin Console';
+ }
+}).catch(()=>{});
+let allReviews=[];
+let activeGenre='ALL';
+let activeTrackContext=null;
+let selectedVibe='';
+let genreCriteriaMap={
+  'Hip-hop / Rap':['Bars & Delivery','Beat / Bounce','Mix & 808s','Replay Value'],
+  'R&B':['Vocals & Harmonies','Mood & Production','Songwriting','Replay Value'],
+  'Pop':['Hook & Melody','Production Polish','Vocal Performance','Replay Value'],
+  'Alternative':['Atmosphere & Edge','Instrumentation','Originality','Replay Value'],
+  'Electronic':['Sound Design','Drop & Groove','Mix & Energy','Replay Value'],
+  'Rock':['Riffs & Instrumentation','Vocal Grit','Energy & Dynamics','Replay Value'],
+  'Other':['Production','Performance','Originality','Replay Value']
+};
+
+const $=s=>document.querySelector(s);
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function showToast(text){
+ const box=$('#toastBox');
+ if(!box)return;
+ const el=document.createElement('div');
+ el.className='toast';
+ el.textContent=text;
+ box.appendChild(el);
+ setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),320);},4200);
+}
+
+function buildGenreSliders(genre){
+ const criteria=genreCriteriaMap[genre]||genreCriteriaMap.Other;
+ $('#ratingGenreHeader').textContent=`${genre} — Live Rating Rubric`;
+ $('#criteriaSliders').innerHTML=criteria.map((c,idx)=>`
+  <div class="crit-item">
+   <div class="crit-head"><span>${esc(c)}</span><span id="cval-${idx}">8.0</span></div>
+   <input type="range" min="0" max="10" step="0.5" value="8" data-crit="${esc(c)}" data-idx="${idx}" oninput="updateLiveSliderAvg()">
+  </div>
+ `).join('');
+ updateLiveSliderAvg();
+}
+
+window.updateLiveSliderAvg=function(){
+ const sliders=[...document.querySelectorAll('#criteriaSliders input[type="range"]')];
+ if(!sliders.length)return;
+ let sum=0;
+ sliders.forEach(sl=>{
+  const v=parseFloat(sl.value);
+  sum+=v;
+  const lbl=document.getElementById(`cval-${sl.dataset.idx}`);
+  if(lbl)lbl.textContent=v.toFixed(1);
+ });
+ const avg=sum/sliders.length;
+ $('#liveAvgPreview').textContent=`Your Score: ${avg.toFixed(1)} / 10`;
+};
+
+$('#vibeChips').addEventListener('click',e=>{
+ const btn=e.target.closest('.vibe-chip');
+ if(!btn)return;
+ document.querySelectorAll('.vibe-chip').forEach(b=>b.classList.remove('selected'));
+ if(selectedVibe===btn.dataset.vibe){selectedVibe='';}
+ else{selectedVibe=btn.dataset.vibe;btn.classList.add('selected');}
+});
+
+$('#toggleRateBtn').addEventListener('click',()=>{
+ $('#dockRatingDrawer').classList.toggle('open');
+});
+
+// Open audio player + sync live Now-Playing stream overlay + load genre rating sliders
+window.playTrack=function(id,url,track,artist,genre){
+ activeTrackContext={id:Number(id),track,artist,genre:genre||'Other'};
+ const dock=$('#audioDock');
+ const player=$('#dockPlayer');
+ $('#dockTrack').textContent=track||'Track';
+ $('#dockArtist').textContent=`${artist||'Artist'} · ${genre||'Other'}`;
+ buildGenreSliders(genre||'Other');
+ $('#dockRatingDrawer').classList.add('open');
+ dock.classList.add('active');
+
+ if(url){
+  player.style.display='block';
+  player.src=url;
+  player.play().catch(()=>{});
+ }else{
+  player.pause();
+  player.removeAttribute('src');
+  player.style.display='none';
+ }
+
+ if(id && isCurrentUserAdmin){
+  fetch('/api/now-playing',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({id:Number(id)})
+  }).catch(()=>{});
+ }
+};
+
+$('#dockClose').addEventListener('click',()=>{
+ const player=$('#dockPlayer');
+ player.pause();
+ $('#audioDock').classList.remove('active');
+});
+
+$('#submitGenreRatingBtn').addEventListener('click',async()=>{
+ if(!activeTrackContext || !activeTrackContext.id){
+  showToast('Select a track to play or rate first.');
+  return;
+ }
+ const sliders=[...document.querySelectorAll('#criteriaSliders input[type="range"]')];
+ const breakdown={};
+ sliders.forEach(sl=>{breakdown[sl.dataset.crit]=parseFloat(sl.value);});
+ try{
+  const r=await fetch(`/api/submissions/${activeTrackContext.id}/rate`,{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({breakdown,vibe:selectedVibe})
+  });
+  const out=await r.json();
+  if(!r.ok)throw new Error(out.error||'Could not submit rating.');
+  showToast(`Rated "${activeTrackContext.track}" ${out.overall.toFixed(1)}/10 (${activeTrackContext.genre})!`);
+  loadSite();
+ }catch(err){
+  showToast(err.message);
+ }
+});
+
+// Cosmic Loader
+(function initCosmicLoader(){
+ const loader=$('#cosmicLoader');
+ const bar=$('#loaderBarFill');
+ const starsHost=$('#loaderStars');
+ if(!loader)return;
+
+ if(starsHost){
+  const starCount=window.innerWidth<600?24:46;
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<starCount;i++){
+   const st=document.createElement('span');
+   st.className='loader-star';
+   const size=(Math.random()*2.2+1).toFixed(2);
+   st.style.width=size+'px';st.style.height=size+'px';
+   st.style.left=(Math.random()*100).toFixed(2)+'%';
+   st.style.top=(Math.random()*100).toFixed(2)+'%';
+   st.style.setProperty('--dur',(Math.random()*2.8+2.2).toFixed(2)+'s');
+   st.style.setProperty('--delay',(Math.random()*2.5).toFixed(2)+'s');
+   frag.appendChild(st);
+  }
+  starsHost.appendChild(frag);
+ }
+
+ const reducedMotion=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const minDisplayMs=reducedMotion?300:1100;
+ const maxDisplayMs=3000;
+ const startTime=performance.now();
+ let progress=reducedMotion?75:14;
+ let dismissed=false;
+ let dataReady=false;
+
+ if(bar)bar.style.width=progress+'%';
+ const ticker=setInterval(()=>{
+  if(dismissed)return;
+  const cap=dataReady?98:88;
+  if(progress<cap){
+   progress=Math.min(cap,progress+(dataReady?15:Math.random()*9+3));
+   if(bar)bar.style.width=progress.toFixed(0)+'%';
+  }
+ },130);
+
+ function finishLoader(){
+  if(dismissed)return;
+  dismissed=true;
+  clearInterval(ticker);
+  clearTimeout(failsafeTimer);
+  if(bar)bar.style.width='100%';
+  setTimeout(()=>{
+   loader.classList.add('is-hidden');
+   document.body.classList.remove('is-loading');
+   setTimeout(()=>{if(loader.parentNode)loader.remove();},800);
+  },reducedMotion?60:220);
+ }
+
+ window.__notifySiteLoaded=function(){
+  dataReady=true;
+  const wait=Math.max(0,minDisplayMs-(performance.now()-startTime));
+  setTimeout(finishLoader,wait);
+ };
+
+ const failsafeTimer=setTimeout(finishLoader,maxDisplayMs);
+ window.addEventListener('load',()=>{setTimeout(()=>{if(!dismissed)window.__notifySiteLoaded();},280);},{once:true});
+})();
+
+// Navigation Warp, Mobile Drawer, Scroll Reveals & Progress
+(function initNavigationTransitions(){
+ const reducedMotion=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const warp=$('#pageWarp');
+ const warpLabel=$('#warpLabel');
+ const progressBar=$('#scrollProgress');
+ const mobileBtn=$('#mobileMenuBtn');
+ const mobileDrawer=$('#mobileDrawer');
+ const navLinks=[...document.querySelectorAll('.nav a[href^="#"]')];
+ const trackedSections=['reviews','submit','priority','queue'].map(id=>document.getElementById(id)).filter(Boolean);
+
+ if(mobileBtn && mobileDrawer){
+  mobileBtn.addEventListener('click',()=>mobileDrawer.classList.toggle('open'));
+ }
+
+ const labels={
+  '#':'RETURNING TO HOME',
+  '#top':'RETURNING TO HOME',
+  '#reviews':'ENTERING LISTENING ROOM',
+  '#submit':'OPENING SUBMISSION DECK',
+  '#priority':'LOADING PRIORITY OPTIONS',
+  '#queue':'CHECKING LIVE QUEUE',
+  '/widgets':'OPENING STREAM WIDGETS',
+  '/admin':'OPENING ADMIN CONSOLE'
+ };
+
+ function triggerWarp(label,onMidpoint){
+  if(mobileDrawer)mobileDrawer.classList.remove('open');
+  if(reducedMotion || !warp){
+   if(typeof onMidpoint==='function')onMidpoint();
+   return;
+  }
+  if(warpLabel)warpLabel.textContent=label||'TUNING FREQUENCY';
+  document.body.classList.add('is-warping');
+  warp.classList.add('is-active');
+  setTimeout(()=>{
+   if(typeof onMidpoint==='function')onMidpoint();
+   setTimeout(()=>{
+    warp.classList.remove('is-active');
+    document.body.classList.remove('is-warping');
+   },230);
+  },230);
+ }
+
+ window.__smoothJumpTo=function(targetSelector,customLabel){
+  const target=targetSelector==='#'||targetSelector==='#top'?document.getElementById('top'):document.querySelector(targetSelector);
+  const label=customLabel||labels[targetSelector]||'TUNING FREQUENCY';
+  triggerWarp(label,()=>{
+   if(target){
+    target.scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'});
+    target.classList.remove('section-flash');
+    void target.offsetWidth;
+    target.classList.add('section-flash');
+   }else{
+    window.scrollTo({top:0,behavior:reducedMotion?'auto':'smooth'});
+   }
+  });
+ };
+
+ document.addEventListener('click',e=>{
+  const link=e.target.closest('a[href]');
+  if(!link)return;
+  const href=link.getAttribute('href');
+  if(!href || link.target==='_blank' || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)return;
+
+  if(href.startsWith('#')){
+   e.preventDefault();
+   if(history.pushState)history.pushState(null,'',href==='#'?'#top':href);
+   window.__smoothJumpTo(href);
+  }else if(href.startsWith('/') && !href.startsWith('//')){
+   e.preventDefault();
+   triggerWarp(labels[href]||'LOADING PAGE',()=>{window.location.href=href;});
+  }
+ });
+
+ window.addEventListener('pageshow',()=>{
+  if(warp)warp.classList.remove('is-active');
+  document.body.classList.remove('is-warping');
+ });
+
+ const revealBlocks=[...document.querySelectorAll('.reveal-block')];
+ if('IntersectionObserver' in window && !reducedMotion){
+  const revealObs=new IntersectionObserver(entries=>{
+   entries.forEach(entry=>{
+    if(entry.isIntersecting){
+     entry.target.classList.add('is-visible');
+     revealObs.unobserve(entry.target);
+    }
+   });
+  },{threshold:0.1,rootMargin:'0px 0px -25px 0px'});
+  revealBlocks.forEach(el=>revealObs.observe(el));
+ }else{
+  revealBlocks.forEach(el=>el.classList.add('is-visible'));
+ }
+
+ function updateScrollUI(){
+  const docH=document.documentElement.scrollHeight-window.innerHeight;
+  if(progressBar && docH>0){
+   progressBar.style.width=Math.max(0,Math.min(100,(window.scrollY/docH)*100)).toFixed(1)+'%';
+  }
+  let currentId='';
+  const offset=window.scrollY+160;
+  for(const sec of trackedSections){
+   if(sec.offsetTop<=offset)currentId='#'+sec.id;
+  }
+  navLinks.forEach(a=>a.classList.toggle('is-active',a.getAttribute('href')===currentId));
+ }
+ window.addEventListener('scroll',updateScrollUI,{passive:true});
+ updateScrollUI();
+})();
+
+// Render filtered & sorted reviews
+function renderReviews(){
+ const grid=$('#reviewsGrid');
+ const query=($('#reviewSearch')?.value||'').trim().toLowerCase();
+ const sortBy=$('#reviewSort')?.value||'newest';
+
+ let list=[...allReviews];
+ if(activeGenre!=='ALL'){
+  list=list.filter(r=>(r.genre||'').toLowerCase()===activeGenre.toLowerCase());
+ }
+ if(query){
+  list=list.filter(r=>
+   (r.track||'').toLowerCase().includes(query) ||
+   (r.artist||'').toLowerCase().includes(query) ||
+   (r.review||'').toLowerCase().includes(query)
+  );
+ }
+ if(sortBy==='highest')list.sort((a,b)=>Number(b.score??0)-Number(a.score??0));
+ else if(sortBy==='lowest')list.sort((a,b)=>Number(a.score??0)-Number(b.score??0));
+ else list.sort((a,b)=>Number(b.id??0)-Number(a.id??0));
+
+ if(!list.length){
+  grid.innerHTML='<div class="panel muted" style="grid-column:1/-1;text-align:center">No reviews match your current filter. Try clearing the search or switching genres.</div>';
+  return;
+ }
+
+ grid.innerHTML=list.map(r=>{
+  const score=Number(r.score??0);
+  const isTop=score>=9.0;
+  const comm=r.community||{count:0,average:null};
+  return `<article class="review">
+   <div class="cover">
+    ${isTop?'<span class="cover-badge">★ STANDOUT</span>':''}
+    <span>☘</span>
+    <button class="cover-play" type="button" onclick="playTrack(${Number(r.id)},'${esc(r.audio_url||'')}','${esc(r.track)}','${esc(r.artist)}','${esc(r.genre)}')">${r.audio_url?'▶ Listen & Rate':'★ Rate Track'}</button>
+   </div>
+   <div class="review-body">
+    <div class="tag">
+     <span>${esc(r.genre)}</span>
+     ${comm.count>0?`<span class="comm-chip">★ ${comm.average.toFixed(1)} (${comm.count})</span>`:''}
+    </div>
+    <h3>${esc(r.track)}</h3>
+    <div class="muted">${esc(r.artist)}</div>
+    <div class="rating">
+     <b class="score ${isTop?'top-score':''}">${score.toFixed(1)}</b>
+     <div class="bar"><i style="width:${Math.max(0,Math.min(100,score*10))}%"></i></div>
+    </div>
+    <p>${esc(r.review||'Review published.')}</p>
+    <div class="review-foot">
+     ${r.song_url?`<a class="link-action" target="_blank" rel="noopener" href="${esc(r.song_url)}">Open stream ↗</a>`:'<span class="muted">Direct upload</span>'}
+     <button class="rate-pill-btn" type="button" onclick="playTrack(${Number(r.id)},'${esc(r.audio_url||'')}','${esc(r.track)}','${esc(r.artist)}','${esc(r.genre)}')">Rate ${esc(r.genre)}</button>
+    </div>
+   </div>
+  </article>`;
+ }).join('');
+}
+
+$('#genrePills').addEventListener('click',e=>{
+ const btn=e.target.closest('.g-pill');
+ if(!btn)return;
+ document.querySelectorAll('.g-pill').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ activeGenre=btn.dataset.genre||'ALL';
+ renderReviews();
+});
+$('#reviewSearch').addEventListener('input',renderReviews);
+$('#reviewSort').addEventListener('change',renderReviews);
+
+// Drag & Drop File Preview
+const audioInput=$('#audioInput');
+const dropZone=$('#fileDropZone');
+if(audioInput && dropZone){
+ audioInput.addEventListener('change',()=>{
+  const file=audioInput.files?.[0];
+  if(file){
+   $('#fileLabel').textContent=`Selected: ${file.name}`;
+   $('#fileSub').textContent=`${(file.size/(1024*1024)).toFixed(2)} MB · Ready to upload`;
+  }else{
+   $('#fileLabel').textContent='Click or drag & drop an audio file here';
+   $('#fileSub').textContent='Supports MP3, WAV, M4A, AAC, OGG, FLAC (Max 30 MB)';
+  }
+ });
+ ['dragenter','dragover'].forEach(evt=>dropZone.addEventListener(evt,()=>dropZone.classList.add('dragover')));
+ ['dragleave','drop'].forEach(evt=>dropZone.addEventListener(evt,()=>dropZone.classList.remove('dragover')));
+}
+
+async function loadSite(){
+ try{
+  const [reviews,queue,config,npData,curatedData,profileData]=await Promise.all([
+   fetch('/api/reviews').then(r=>r.json()),
+   fetch('/api/queue').then(r=>r.json()),
+   fetch('/api/config').then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch('/api/now-playing').then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch('/api/curated').then(r=>r.ok?r.json():null).catch(()=>null),
+   fetch('/api/profile').then(r=>r.ok?r.json():null).catch(()=>null)
+  ]);
+  if(curatedData)renderCurated(curatedData);
+  if(profileData)renderHostProfile(profileData);
+  allReviews=Array.isArray(reviews)?reviews:[];
+  $('#reviewCount').textContent=allReviews.length;
+  $('#queueCount').textContent=queue.length;
+  if(allReviews.length){
+   const avg=allReviews.reduce((acc,r)=>acc+Number(r.score??0),0)/allReviews.length;
+   $('#avgScore').textContent=avg.toFixed(1);
+  }else{
+   $('#avgScore').textContent='—';
+  }
+  if(config){
+   if(config.skipPrice)$('#skipPrice').textContent=config.skipPrice;
+   if(config.superPrice)$('#superPrice').textContent=config.superPrice;
+   if(config.genreCriteria)genreCriteriaMap=config.genreCriteria;
+   if(!config.stripeEnabled && $('#checkoutHint')){
+    $('#checkoutHint').textContent='Demo mode: Stripe keys are not configured yet, so priority buttons will preview checkout status until configured in .env.';
+   }
+  }
+  if(npData && npData.nowPlaying){
+   const np=npData.nowPlaying;
+   $('#previewWidgetTrack').textContent=np.track;
+   $('#previewWidgetArtist').textContent=np.artist;
+   $('#previewWidgetGenre').textContent=np.genre;
+   const sc=np.community?.average ?? np.score;
+   $('#previewWidgetScore').textContent=sc!==null && sc!==undefined ? Number(sc).toFixed(1) : 'LIVE';
+  }
+  renderReviews();
+  const eligible = queue.filter(q=>q.priority===0);
+  currentWheelQueue = eligible.length ? eligible : queue;
+  if(!siteWheelSpinning){
+    renderSiteWheel(currentWheelQueue, siteWheelAngle);
+    const wBox = document.getElementById('wheelResultBox');
+    if(wBox){
+      if(npData && npData.lastWheelSpin){
+        wBox.textContent = `🏆 Last Winner: ${npData.lastWheelSpin.winnerArtist} — "${npData.lastWheelSpin.winnerTrack}" (${npData.lastWheelSpin.tier}) · ${currentWheelQueue.length} in pool`;
+      }else{
+        wBox.textContent = currentWheelQueue.length ? `${currentWheelQueue.length} artist${currentWheelQueue.length===1?'':'s'} currently on the wheel — host spins live on stream!` : 'Queue is empty — submit a song to enter!';
+      }
+    }
+  }
+  $('#queueList').innerHTML=queue.length?queue.map((q,i)=>`
+   <div class="qrow">
+    <span class="qnum">${String(i+1).padStart(2,'0')}</span>
+    <div>
+     <b>${esc(q.track)}</b>
+     <small>${esc(q.artist)} · ${esc(q.genre)} ${q.community?.count?`· ★ ${q.community.average.toFixed(1)} (${q.community.count} votes)`:''}</small>
+    </div>
+    <div class="q-actions">
+     <button class="mini-play" type="button" onclick="playTrack(${Number(q.id)},'${esc(q.audio_url||'')}','${esc(q.track)}','${esc(q.artist)}','${esc(q.genre)}')">${q.audio_url?'▶ Play & Rate':'★ Rate Live'}</button>
+     <span class="pill ${q.priority===2?'super':''}">${q.priority===2?'SUPER SKIP ♣':q.priority===1?'SKIP':esc(q.status.toUpperCase())}</span>
+    </div>
+   </div>`).join(''):'<div class="empty">The queue is clear. Be the first to submit a track.</div>';
+ }catch(e){
+  $('#reviewsGrid').innerHTML='<div class="panel muted" style="grid-column:1/-1">Could not connect to the server. Start the app with <code>npm start</code> and refresh.</div>';
+  $('#queueList').innerHTML='<div class="empty">Queue unavailable while offline.</div>';
+ }finally{
+  if(typeof window.__notifySiteLoaded==='function')window.__notifySiteLoaded();
+ }
+}
+
+$('#submissionForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const form=e.currentTarget;
+ const data=new FormData(form);
+ const msg=$('#submitMessage');
+ if(!data.get('songUrl') && !data.get('audio').size){
+  msg.style.display='block';
+  msg.textContent='Add a song link or choose an audio file.';
+  return;
+ }
+ msg.style.display='block';
+ msg.textContent='Submitting your track…';
+ try{
+  const r=await fetch('/api/submissions',{method:'POST',body:data});
+  const out=await r.json();
+  if(!r.ok)throw new Error(out.error||'Submission failed.');
+  latestSubmissionId=out.id;
+  msg.textContent=`${out.message} Your submission number is #${out.id}. You can now choose Skip or Super Skip below.`;
+  showToast(`Submitted! Track #${out.id} is in the queue.`);
+  form.reset();
+  if($('#fileLabel'))$('#fileLabel').textContent='Click or drag & drop an audio file here';
+  if($('#fileSub'))$('#fileSub').textContent='Supports MP3, WAV, M4A, AAC, OGG, FLAC (Max 30 MB)';
+  loadSite();
+ }catch(err){
+  msg.textContent=err.message;
+ }
+});
+
+async function buyPriority(tier){
+ if(!latestSubmissionId){
+  showToast('Submit your song first, then choose Skip or Super Skip.');
+  if(typeof window.__smoothJumpTo==='function')window.__smoothJumpTo('#submit','OPENING SUBMISSION DECK');
+  else document.querySelector('#submit').scrollIntoView({behavior:'smooth'});
+  return;
+ }
+ try{
+  const r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({submissionId:latestSubmissionId,tier})});
+  const out=await r.json();
+  if(!r.ok)throw new Error(out.error||'Checkout unavailable.');
+  location.href=out.url;
+ }catch(e){
+  showToast(e.message);
+ }
+}
+
+const params=new URLSearchParams(location.search);
+if(params.get('payment')==='success')showToast('Payment received! Your priority status will update automatically.');
+if(params.get('payment')==='cancelled')showToast('Checkout cancelled. Your free submission remains in the queue.');
+loadSite();
+
+let siteWheelAngle = 0;
+let siteWheelSpinning = false;
+let currentWheelQueue = [];
+
+function renderSiteWheel(items, angle){
+  const canvas = document.getElementById('freeSkipWheel');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const size = canvas.width;
+  const cx = size / 2, cy = size / 2, r = size / 2 - 6;
+  ctx.clearRect(0, 0, size, size);
+
+  const list = items && items.length ? items : [{ artist: 'Queue Empty', track: 'Submit a song!' }];
+  const n = list.length;
+  const arc = (Math.PI * 2) / n;
+  const palette = ['#133b1f', '#1c572d', '#0e2916', '#256b38'];
+
+  for(let i = 0; i < n; i++){
+    const start = angle + i * arc;
+    const end = start + arc;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.closePath();
+    ctx.fillStyle = palette[i % palette.length];
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(184,243,107,0.35)';
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = i % 2 === 0 ? '#f1f8f0' : '#b8f36b';
+    ctx.font = '800 12px Inter, system-ui, sans-serif';
+    ctx.fillText(String(list[i].artist || 'Artist').slice(0, 18), r - 16, 4);
+    ctx.restore();
+  }
+}
+
+window.spinFreeSkipWheel = async function(){
+  if(siteWheelSpinning) return;
+  const btn = document.getElementById('spinWheelBtn');
+  const box = document.getElementById('wheelResultBox');
+  siteWheelSpinning = true;
+  if(btn) btn.disabled = true;
+  box.textContent = '🎰 Spinning the queue wheel…';
+
+  try{
+    const r = await fetch('/api/wheel/spin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ onlyStandard: true })
+    });
+    const out = await r.json();
+    if(!r.ok) throw new Error(out.error || 'Could not spin wheel.');
+
+    const spin = out.spin;
+    const participants = spin.participants || [];
+    const n = Math.max(1, participants.length);
+    const arc = (Math.PI * 2) / n;
+    const targetCenter = (spin.winnerIndex + 0.5) * arc;
+    const landingAngle = -Math.PI / 2 - targetCenter;
+    const startAngle = siteWheelAngle;
+    const delta = (Math.PI * 2 * 6) + ((landingAngle - startAngle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+    const duration = 4200;
+    const t0 = performance.now();
+
+    function animateSpin(now){
+      const p = Math.min(1, (now - t0) / duration);
+      const ease = 1 - Math.pow(1 - p, 4);
+      siteWheelAngle = startAngle + delta * ease;
+      renderSiteWheel(participants, siteWheelAngle);
+      if(p < 1){
+        requestAnimationFrame(animateSpin);
+      }else{
+        siteWheelSpinning = false;
+        if(btn) btn.disabled = false;
+        box.textContent = `🎉 WINNER: ${spin.winnerArtist} — "${spin.winnerTrack}" won a ${spin.tier}!`;
+        showToast(`🎉 ${spin.winnerArtist} won a FREE SKIP!`);
+        loadSite();
+      }
+    }
+    requestAnimationFrame(animateSpin);
+  }catch(err){
+    siteWheelSpinning = false;
+    if(btn) btn.disabled = false;
+    box.textContent = err.message;
+    showToast(err.message);
+  }
+};
+
+
+window.switchCuratedTab = function(tab, btn) {
+  document.querySelectorAll('.c-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  $('#curatedArtistsList').style.display = tab === 'artists' ? 'grid' : 'none';
+  $('#curatedTracksList').style.display = tab === 'tracks' ? 'grid' : 'none';
+};
+
+function renderCurated(data) {
+  const artists = data?.topArtists || [];
+  const tracks = data?.topTracks || [];
+
+  $('#curatedArtistsList').innerHTML = artists.length ? artists.map((a, i) => `
+    <div class="rank-card ${i === 0 ? 'rank-1' : ''}">
+      <div class="rank-badge">#${i + 1}</div>
+      <div class="rank-info">
+        <h4>${esc(a.artist)} <span class="tag">${esc(a.genre)}</span></h4>
+        <p>${esc(a.note || 'Certified standout artist')}</p>
+      </div>
+      ${a.link ? `<a class="btn ghost" style="padding:8px 12px" target="_blank" rel="noopener" href="${esc(a.link)}">Profile ↗</a>` : ''}
+    </div>
+  `).join('') : '<div class="empty">Admin hasn’t locked in the Top 5 Artists yet.</div>';
+
+  $('#curatedTracksList').innerHTML = tracks.length ? tracks.map((t, i) => `
+    <div class="rank-card ${i === 0 ? 'rank-1' : ''}">
+      <div class="rank-badge">#${i + 1}</div>
+      <div class="rank-info">
+        <h4>${esc(t.track)} <span class="muted">by ${esc(t.artist)}</span> <span class="tag">${esc(t.genre)}</span></h4>
+        <p>${esc(t.note || 'Top 10 certified heat')}</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${t.audio_url ? `<button class="mini-play" type="button" onclick="playTrack(0,'${esc(t.audio_url)}','${esc(t.track)}','${esc(t.artist)}','${esc(t.genre)}')">▶ Play</button>` : ''}
+        ${t.song_url ? `<a class="btn ghost" style="padding:8px 12px" target="_blank" rel="noopener" href="${esc(t.song_url)}">Listen ↗</a>` : ''}
+      </div>
+    </div>
+  `).join('') : '<div class="empty">Admin hasn’t locked in the Top 10 Tracks yet.</div>';
+}
+
+function renderHostProfile(data) {
+  if (!data) return;
+  const list = data.emerieco || data.jayclerr
+    ? [data.emerieco, data.jayclerr].filter(Boolean)
+    : [data];
+
+  const container = $('#hostsContainer');
+  if (!container) return;
+
+  container.innerHTML = list.map((p, idx) => {
+    const s = p.socials || {};
+    const links = [
+      { key: 'instagram', label: 'Instagram', icon: '📸' },
+      { key: 'tiktok', label: 'TikTok', icon: '🎵' },
+      { key: 'twitch', label: 'Twitch', icon: '🟣' },
+      { key: 'youtube', label: 'YouTube', icon: '▶️' },
+      { key: 'spotify', label: 'Spotify', icon: '🎧' }
+    ].filter(item => s[item.key]);
+
+    const avatarHtml = p.avatar_url
+      ? `<img src="${esc(p.avatar_url)}" alt="${esc(p.name || 'Host')}">`
+      : '☘';
+
+    return `
+      <div class="host-section" style="margin-top:0">
+        <div class="host-pfp-wrap">
+          <div class="host-pfp">${avatarHtml}</div>
+          <span class="host-verified">${idx === 0 ? 'HOST' : 'CO-HOST'}</span>
+        </div>
+        <div class="host-info">
+          <h2 style="margin:0 0 4px">${esc(p.name || 'Host')}</h2>
+          <div class="host-role">${esc(p.role || 'Host & Curator')}</div>
+          <p class="host-bio">${esc(p.bio || '')}</p>
+          <div class="host-socials">
+            ${links.length
+              ? links.map(item => `<a class="social-chip" target="_blank" rel="noopener" href="${esc(s[item.key])}">${item.icon} ${item.label} ↗</a>`).join('')
+              : '<span class="muted" style="font-size:12px">Social links coming soon.</span>'}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+</script>
+<script>
+// === INTERACTIVE COSMIC SPACE, TWINKLING STARS, SHOOTING METEORS & FLOATING CLOVERS ===
+(function initCosmicSpace() {
+  const canvas = document.getElementById('cosmosCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let w = canvas.width = window.innerWidth;
+  let h = canvas.height = window.innerHeight;
+  let pointerX = w * 0.5, pointerY = h * 0.5;
+
+  window.addEventListener('resize', () => {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }, { passive: true });
+
+  window.addEventListener('mousemove', e => {
+    pointerX = e.clientX;
+    pointerY = e.clientY;
+  }, { passive: true });
+
+  const starCount = w < 640 ? 95 : 185;
+  const stars = Array.from({ length: starCount }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    r: Math.random() * 1.7 + 0.35,
+    alpha: Math.random() * 0.75 + 0.2,
+    twinkle: Math.random() * 0.02 + 0.005,
+    phase: Math.random() * Math.PI * 2,
+    depth: Math.random() * 0.6 + 0.15,
+    tint: Math.random() > 0.32 ? '#eaffef' : (Math.random() > 0.5 ? '#86efac' : '#bef264')
+  }));
+
+  const clovers = Array.from({ length: w < 640 ? 7 : 13 }, () => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    size: Math.random() * 13 + 11,
+    vx: (Math.random() - 0.5) * 0.22,
+    vy: -Math.random() * 0.24 - 0.06,
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.006,
+    alpha: Math.random() * 0.16 + 0.06,
+    char: Math.random() > 0.35 ? '☘' : '♣'
+  }));
+
+  const meteors = [];
+  function spawnMeteor() {
+    if (reducedMotion || meteors.length >= 2) return;
+    meteors.push({
+      x: Math.random() * w * 0.9,
+      y: Math.random() * h * 0.35,
+      vx: Math.random() * 7 + 7,
+      vy: Math.random() * 3.5 + 3,
+      len: Math.random() * 90 + 70,
+      life: 1
+    });
+  }
+  setInterval(() => { if (Math.random() < 0.65) spawnMeteor(); }, 4200);
+
+  function frame(now) {
+    ctx.clearRect(0, 0, w, h);
+    const ox = (pointerX - w * 0.5) * 0.018;
+    const oy = (pointerY - h * 0.5) * 0.018;
+
+    // Stars
+    for (const s of stars) {
+      const pulse = reducedMotion ? 1 : (0.65 + 0.35 * Math.sin(now * s.twinkle + s.phase));
+      const sx = (s.x + ox * s.depth + w) % w;
+      const sy = (s.y + oy * s.depth + h) % h;
+      ctx.globalAlpha = s.alpha * pulse;
+      ctx.fillStyle = s.tint;
+      ctx.beginPath();
+      ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (s.r > 1.55) {
+        ctx.globalAlpha = s.alpha * pulse * 0.35;
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.r * 3.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Drifting Cosmic Clovers
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (const c of clovers) {
+      if (!reducedMotion) {
+        c.x += c.vx;
+        c.y += c.vy;
+        c.rot += c.vrot;
+        if (c.y < -30) { c.y = h + 30; c.x = Math.random() * w; }
+        if (c.x < -30) c.x = w + 30;
+        if (c.x > w + 30) c.x = -30;
+      }
+      ctx.save();
+      ctx.translate(c.x + ox * 0.4, c.y + oy * 0.4);
+      ctx.rotate(c.rot);
+      ctx.globalAlpha = c.alpha;
+      ctx.fillStyle = '#55e078';
+      ctx.font = `${c.size}px sans-serif`;
+      ctx.fillText(c.char, 0, 0);
+      ctx.restore();
+    }
+
+    // Shooting Stars
+    for (let i = meteors.length - 1; i >= 0; i--) {
+      const m = meteors[i];
+      m.x += m.vx;
+      m.y += m.vy;
+      m.life -= 0.018;
+      if (m.life <= 0) { meteors.splice(i, 1); continue; }
+      const grad = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * 8, m.y - m.vy * 8);
+      grad.addColorStop(0, `rgba(214,255,194,${m.life})`);
+      grad.addColorStop(1, 'rgba(57,229,106,0)');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.8;
+      ctx.globalAlpha = m.life;
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(m.x - m.vx * 8, m.y - m.vy * 8);
+      ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+window.setCosmosTheme = function(theme, btn) {
+  document.body.setAttribute('data-cosmos', theme);
+  document.querySelectorAll('.cos-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === theme);
+  });
+  try { localStorage.setItem('emerieco_cosmos', theme); } catch (_e) {}
+};
+(function restoreCosmosTheme() {
+  try {
+    const saved = localStorage.getItem('emerieco_cosmos');
+    if (saved) {
+      const btn = document.querySelector(`.cos-btn[data-theme="${saved}"]`);
+      window.setCosmosTheme(saved, btn);
+    }
+  } catch (_e) {}
+})();
+</script>
+</body></html>

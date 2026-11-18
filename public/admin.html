@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07130b"><title>emerieco.sounds — Admin Console</title>
+<style>
+:root{--bg:#060f09;--panel:#0e1911;--panel2:#152419;--line:#263f2d;--text:#f1f8f0;--muted:#9ab09d;--green:#55e078;--lime:#b8f36b;--danger:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#1b542a 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif}
+a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}
+.top{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 max(5vw,20px);position:sticky;top:0;z-index:10;background:#060f09eb;backdrop-filter:blur(16px);border-bottom:1px solid #ffffff13}
+.brand{font-weight:950;letter-spacing:-1px;font-size:20px}.brand b{color:var(--green)}
+.btn{border:0;border-radius:10px;padding:10px 14px;background:linear-gradient(120deg,var(--green),var(--lime));color:#07130b;font-size:12px;font-weight:900;cursor:pointer;transition:transform .2s ease,filter .2s ease}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.05)}.ghost{background:#ffffff09;color:white;border:1px solid var(--line)}.danger{background:#ff6b6b22;color:#ff9b9b;border:1px solid #ff6b6b55}
+main{max-width:1140px;margin:auto;padding:36px 24px 80px}
+.eyebrow{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--green);font-weight:900}
+h1{font-size:clamp(30px,5vw,44px);letter-spacing:-2px;margin:10px 0 8px}
+.muted{color:var(--muted);font-size:13px;line-height:1.6}
+.auth-box,.panel{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:22px;margin-top:24px}
+.auth-box{max-width:440px}
+.field{display:grid;gap:7px;margin:13px 0}.field label{font-size:11px;font-weight:800;color:#d1e0d2}
+.field input,.field textarea,.field select,.inline-input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#08120b;color:white;font-size:12px;outline:none}
+.field input:focus,.inline-input:focus{border-color:var(--green)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}
+.stat{border:1px solid var(--line);background:#ffffff06;border-radius:14px;padding:16px 18px}.stat b{display:block;font-size:24px}.stat span{font-size:10px;letter-spacing:1.4px;color:var(--muted);text-transform:uppercase}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:28px 0 12px}
+.grid{display:grid;gap:14px}
+.item{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:18px;display:grid;gap:12px}
+.item-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.pill{border:1px solid #55e07855;color:var(--lime);padding:4px 10px;border-radius:20px;font-size:10px;font-weight:900}
+.pill.super{background:#55e07822;border-color:var(--lime)}
+.row-actions{display:grid;grid-template-columns:105px 1fr auto auto;gap:10px;align-items:center}
+audio{width:100%;height:36px;border-radius:8px}
+.msg{margin-top:10px;font-size:12px;color:var(--lime)}
+#pageWarp{position:fixed;inset:0;z-index:9998;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 50%,rgba(22,73,36,.96) 0%,rgba(7,17,10,.98) 65%,#030805 100%);backdrop-filter:blur(14px);opacity:0;visibility:hidden;transition:opacity .35s ease,visibility .35s ease}
+#pageWarp.is-active{opacity:1;visibility:visible;pointer-events:auto}
+.warp-clover{font-size:40px;color:var(--green);filter:drop-shadow(0 0 16px rgba(85,224,120,.75))}
+.warp-label{font-size:10px;font-weight:900;letter-spacing:2.8px;text-transform:uppercase;color:var(--lime)}
+@media(max-width:780px){.row-actions{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<div id="pageWarp"><div class="warp-clover">☘</div><div class="warp-label">RETURNING TO HOMEPAGE</div></div>
+<header class="top">
+  <a class="brand" href="/">emerieco<b>.</b>sounds</a>
+  <div style="display:flex;gap:10px;align-items:center">
+    <a class="btn ghost" href="/widgets">Stream Widgets</a>
+    <a class="btn ghost" href="/">← Back to Site</a>
+    <button class="btn ghost" id="logoutBtn" style="display:none" type="button" onclick="logoutAdmin()">Sign out</button>
+  </div>
+</header>
+<main>
+  <div class="eyebrow">♣ Listening Room Control</div>
+  <h1>Admin Review Console</h1>
+  <p class="muted">Listen to pending submissions, adjust priority tiers, publish 0–10 scores, and manage published reviews.</p>
+
+  <div class="auth-box" id="loginBox">
+    <h3 style="margin:0 0 6px" id="authTitle">Admin Sign In</h3>
+    <p class="muted" style="margin:0 0 14px;font-size:12px" id="authSubtitle">Select <b>Emerieco</b> or <b>Jayclerr</b> to sign in or create your own password.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label>Admin Account</label>
+        <select id="adminUser" onchange="updateAuthMode()">
+          <option value="emerieco">Emerieco (Host &amp; Head Curator)</option>
+          <option value="jayclerr">Jayclerr (Co-Host &amp; Curator)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label id="passLabel">Admin Password</label>
+        <input type="password" id="adminPass" required minlength="6" placeholder="••••••••">
+      </div>
+      <div class="field" id="confirmPassField" style="display:none">
+        <label>Confirm New Password</label>
+        <input type="password" id="adminPassConfirm" minlength="6" placeholder="Re-enter your new password">
+      </div>
+      <button class="btn" type="submit" id="authSubmitBtn" style="width:100%">Unlock Console ♣</button>
+      <div class="msg" id="loginMsg"></div>
+    </form>
+  </div>
+
+  <div id="dashboard" style="display:none">
+    <div class="stats">
+      <div class="stat"><b id="statPending">0</b><span>Pending in Queue</span></div>
+      <div class="stat"><b id="statPriority">0</b><span>Priority Tracks</span></div>
+      <div class="stat"><b id="statPublished">0</b><span>Published Reviews</span></div>
+      <div class="stat"><b id="statAvg">—</b><span>Avg Published Score</span></div>
+    </div>
+
+    <div class="toolbar">
+      <h2 style="margin:0;letter-spacing:-1px">Pending Queue</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" onclick="adminSpinWheel()">🎰 Spin Free Skip Wheel</button><input class="inline-input" id="adminFilter" style="max-width:240px" placeholder="Filter queue or reviews…"></div>
+    </div>
+    <div class="grid" id="adminQueue"><div class="panel muted">Loading queue…</div></div>
+
+    <h2 style="margin:36px 0 12px;letter-spacing:-1px">Published Reviews</h2>
+    <div class="grid" id="adminReviews"><div class="panel muted">Loading published reviews…</div></div>
+
+    <section class="panel" style="margin-top:36px">
+      <div class="eyebrow">👤 Logged in as <span id="activeAdminBadge">Admin</span></div>
+      <h2 style="margin:6px 0 14px;letter-spacing:-1px">Edit Your Public Profile, PFP &amp; Socials</h2>
+      <p class="muted" style="margin:0 0 18px">Customize how you appear in the <b>Behind the Listening Room</b> section on the homepage.</p>
+      <div style="display:grid;grid-template-columns:160px 1fr;gap:22px;align-items:start">
+        <div style="text-align:center">
+          <div id="adminAvatarPreview" style="width:120px;height:120px;margin:0 auto 10px;border-radius:50%;border:2px solid var(--lime);background:#08120b;display:grid;place-items:center;font-size:44px;overflow:hidden">☘</div>
+          <label class="btn ghost" style="display:inline-block;padding:8px 12px;font-size:11px;cursor:pointer">
+            📷 Upload PFP
+            <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="uploadAdminAvatar(this)">
+          </label>
+        </div>
+        <div style="display:grid;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="field" style="margin:0"><label>Display Name</label><input id="profName" placeholder="Emerieco"></div>
+            <div class="field" style="margin:0"><label>Title / Role</label><input id="profRole" placeholder="Host & Head Curator"></div>
+          </div>
+          <div class="field" style="margin:0"><label>Profile Picture URL (or upload on left)</label><input id="profAvatarUrl" placeholder="https://... or /uploads/..." oninput="previewAvatarUrl(this.value)"></div>
+          <div class="field" style="margin:0"><label>About / Bio</label><textarea id="profBio" rows="3" placeholder="Tell artists and listeners about yourself, your stream, and what you look for in music..."></textarea></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+            <div class="field" style="margin:0"><label>📸 Instagram URL</label><input id="socInsta" placeholder="https://instagram.com/..."></div>
+            <div class="field" style="margin:0"><label>🎵 TikTok URL</label><input id="socTiktok" placeholder="https://tiktok.com/@..."></div>
+            <div class="field" style="margin:0"><label>🟣 Twitch URL</label><input id="socTwitch" placeholder="https://twitch.tv/..."></div>
+            <div class="field" style="margin:0"><label>▶️ YouTube URL</label><input id="socYoutube" placeholder="https://youtube.com/@..."></div>
+            <div class="field" style="margin:0"><label>🎧 Spotify URL</label><input id="socSpotify" placeholder="https://open.spotify.com/..."></div>
+          </div>
+          <div>
+            <button class="btn" type="button" onclick="saveAdminProfile()">Save Profile &amp; Socials ♣</button>
+          </div>
+          <div style="margin-top:14px;padding-top:16px;border-top:1px solid var(--line)">
+            <div style="font-size:12px;font-weight:900;color:var(--lime);margin-bottom:10px">🔒 Change Your Password</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end">
+              <div class="field" style="margin:0"><label>Current Password</label><input type="password" id="curPass" placeholder="Current password"></div>
+              <div class="field" style="margin:0"><label>New Password (min 6 chars)</label><input type="password" id="newPass" placeholder="New password"></div>
+              <div class="field" style="margin:0"><label>Confirm New Password</label><input type="password" id="confNewPass" placeholder="Confirm new password"></div>
+              <button class="btn ghost" type="button" onclick="changeMyPassword()">Update Password 🔑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:36px">
+      <div class="eyebrow">👑 Homepage Curated Lists</div>
+      <h2 style="margin:6px 0 14px;letter-spacing:-1px">Top 5 Artists &amp; Top 10 Tracks</h2>
+      <p class="muted" style="margin:0 0 18px">Click <b>⭐ Top 5 Artist</b> or <b>🔥 Top 10 Track</b> on any submission above to auto-fill, or edit and reorder manually below.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+        <div>
+          <h3 style="margin:0 0 10px">🏆 Top 5 Artists</h3>
+          <div id="adminTopArtists" style="display:grid;gap:8px;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn ghost" type="button" onclick="addArtistSlot()">+ Add Artist</button>
+            <button class="btn" type="button" onclick="saveTopArtists()">Save Top 5 ♣</button>
+          </div>
+        </div>
+        <div>
+          <h3 style="margin:0 0 10px">🔥 Top 10 Tracks</h3>
+          <div id="adminTopTracks" style="display:grid;gap:8px;margin-bottom:12px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn ghost" type="button" onclick="addTrackSlot()">+ Add Track</button>
+            <button class="btn" type="button" onclick="saveTopTracks()">Save Top 10 ♣</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+let cachedState={queue:[],reviews:[]};
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+document.addEventListener('click',e=>{
+ const link=e.target.closest('a[href="/"]');
+ if(!link)return;
+ e.preventDefault();
+ $('#pageWarp').classList.add('is-active');
+ setTimeout(()=>{location.href='/';},250);
+});
+window.addEventListener('pageshow',()=>$('#pageWarp').classList.remove('is-active'));
+
+async function checkSession(){
+ const r=await fetch('/api/admin/state');
+ if(r.ok){
+  cachedState=await r.json();
+  $('#loginBox').style.display='none';
+  $('#dashboard').style.display='block';
+  $('#logoutBtn').style.display='inline-block';
+  renderDashboard();
+  loadCuratedAdmin();
+  loadAdminProfile();
+ }
+}
+
+let accountsHasPassword = { emerieco: false, jayclerr: false };
+
+async function loadAccountsStatus() {
+  try {
+    const r = await fetch('/api/admin/accounts-status');
+    if (r.ok) {
+      accountsHasPassword = await r.json();
+      updateAuthMode();
+    }
+  } catch (_) {}
+}
+
+function updateAuthMode() {
+  const user = $('#adminUser').value;
+  const hasPw = Boolean(accountsHasPassword[user]);
+  const name = user === 'jayclerr' ? 'Jayclerr' : 'Emerieco';
+  $('#loginMsg').textContent = '';
+  if (!hasPw) {
+    $('#authTitle').textContent = `Create Password for ${name}`;
+    $('#authSubtitle').innerHTML = `<b>${name}</b> hasn't created a password yet. Set your own personal password below to claim your admin account.`;
+    $('#passLabel').textContent = 'Create Password (min 6 characters)';
+    $('#confirmPassField').style.display = 'grid';
+    $('#adminPassConfirm').required = true;
+    $('#authSubmitBtn').textContent = `Create ${name}'s Password & Sign In ♣`;
+  } else {
+    $('#authTitle').textContent = `Sign In as ${name}`;
+    $('#authSubtitle').innerHTML = `Enter <b>${name}</b>'s password to unlock the console.`;
+    $('#passLabel').textContent = 'Admin Password';
+    $('#confirmPassField').style.display = 'none';
+    $('#adminPassConfirm').required = false;
+    $('#authSubmitBtn').textContent = 'Unlock Console ♣';
+  }
+}
+
+$('#loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const username=$('#adminUser').value;
+ const password=$('#adminPass').value;
+ const hasPw=Boolean(accountsHasPassword[username]);
+
+ if(!hasPw){
+  const confirmPassword=$('#adminPassConfirm').value;
+  if(password!==confirmPassword){
+   $('#loginMsg').textContent='Passwords do not match.';
+   return;
+  }
+  const r=await fetch('/api/admin/setup-password',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({username,password,confirmPassword})
+  });
+  const out=await r.json();
+  if(!r.ok){$('#loginMsg').textContent=out.error||'Could not create password';return;}
+  $('#adminPass').value='';
+  $('#adminPassConfirm').value='';
+  checkSession();
+  return;
+ }
+
+ const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
+ const out=await r.json();
+ if(!r.ok){
+  if(out.needsSetup){accountsHasPassword[username]=false;updateAuthMode();}
+  $('#loginMsg').textContent=out.error||'Invalid password';
+  return;
+ }
+ $('#adminPass').value='';
+ 
+let adminArtists = [];
+let adminTracks = [];
+
+async function loadCuratedAdmin() {
+  const data = await fetch('/api/curated').then(r => r.json());
+  adminArtists = data.topArtists || [];
+  adminTracks = data.topTracks || [];
+  renderAdminCurated();
+}
+
+function renderAdminCurated() {
+  document.getElementById('adminTopArtists').innerHTML = adminArtists.length ? adminArtists.map((a, i) => `
+    <div style="display:grid;grid-template-columns:28px 1fr 1fr auto;gap:6px;align-items:center">
+      <b style="color:var(--lime)">#${i + 1}</b>
+      <input class="inline-input" value="${esc(a.artist || '')}" placeholder="Artist" onchange="adminArtists[${i}].artist=this.value">
+      <input class="inline-input" value="${esc(a.note || '')}" placeholder="Why they're top 5" onchange="adminArtists[${i}].note=this.value">
+      <div style="display:flex;gap:4px">
+        ${i > 0 ? `<button class="btn ghost" style="padding:6px 8px" type="button" onclick="moveItem(adminArtists,${i},-1)">↑</button>` : ''}
+        <button class="btn danger" style="padding:6px 8px" type="button" onclick="adminArtists.splice(${i},1);renderAdminCurated()">✕</button>
+      </div>
+    </div>
+  `).join('') : '<div class="muted" style="font-size:12px">No artists added yet.</div>';
+
+  document.getElementById('adminTopTracks').innerHTML = adminTracks.length ? adminTracks.map((t, i) => `
+    <div style="display:grid;grid-template-columns:28px 1fr 1fr 1fr auto;gap:6px;align-items:center">
+      <b style="color:var(--lime)">#${i + 1}</b>
+      <input class="inline-input" value="${esc(t.track || '')}" placeholder="Track" onchange="adminTracks[${i}].track=this.value">
+      <input class="inline-input" value="${esc(t.artist || '')}" placeholder="Artist" onchange="adminTracks[${i}].artist=this.value">
+      <input class="inline-input" value="${esc(t.note || '')}" placeholder="Note" onchange="adminTracks[${i}].note=this.value">
+      <div style="display:flex;gap:4px">
+        ${i > 0 ? `<button class="btn ghost" style="padding:6px 8px" type="button" onclick="moveItem(adminTracks,${i},-1)">↑</button>` : ''}
+        <button class="btn danger" style="padding:6px 8px" type="button" onclick="adminTopTracksRemove(${i})">✕</button>
+      </div>
+    </div>
+  `).join('') : '<div class="muted" style="font-size:12px">No tracks added yet.</div>';
+}
+
+function adminTopTracksRemove(i) {
+  adminTracks.splice(i, 1);
+  renderAdminCurated();
+}
+
+function moveItem(arr, idx, dir) {
+  const target = idx + dir;
+  if (target < 0 || target >= arr.length) return;
+  [arr[idx], arr[target]] = [arr[target], arr[idx]];
+  renderAdminCurated();
+}
+
+function addArtistSlot() {
+  if (adminArtists.length >= 5) return alert('Top 5 Artists is full (max 5).');
+  adminArtists.push({ artist: '', genre: 'Hip-hop / Rap', note: '', link: '' });
+  renderAdminCurated();
+}
+
+function addTrackSlot() {
+  if (adminTracks.length >= 10) return alert('Top 10 Tracks is full (max 10).');
+  adminTracks.push({ artist: '', track: '', genre: 'Hip-hop / Rap', note: '', song_url: '' });
+  renderAdminCurated();
+}
+
+function promoteArtist(id, listName) {
+  const item = (cachedState[listName] || []).find(x => x.id === id);
+  if (!item) return;
+  if (adminArtists.length >= 5) return alert('Top 5 Artists already has 5 entries. Remove one below first!');
+  adminArtists.push({ artist: item.artist, genre: item.genre, note: item.note || 'Admin Certified Pick', link: item.song_url || '' });
+  renderAdminCurated();
+  saveTopArtists();
+}
+
+function promoteTrack(id, listName) {
+  const item = (cachedState[listName] || []).find(x => x.id === id);
+  if (!item) return;
+  if (adminTracks.length >= 10) return alert('Top 10 Tracks already has 10 entries. Remove one below first!');
+  adminTracks.push({
+    artist: item.artist,
+    track: item.track,
+    genre: item.genre,
+    note: item.score ? `${Number(item.score).toFixed(1)} — ${item.review || 'Top 10 Pick'}` : (item.note || 'Top 10 Pick'),
+    song_url: item.song_url || null,
+    audio_url: item.audio_url || null
+  });
+  renderAdminCurated();
+  saveTopTracks();
+}
+
+async function saveTopArtists() {
+  const r = await fetch('/api/admin/top-artists', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topArtists: adminArtists })
+  });
+  if (r.ok) alert('🏆 Top 5 Artists saved to homepage!');
+}
+
+
+function previewAvatarUrl(url) {
+  const box = document.getElementById('adminAvatarPreview');
+  if (url && url.trim()) {
+    box.innerHTML = `<img src="${esc(url.trim())}" style="width:100%;height:100%;object-fit:cover">`;
+  } else {
+    box.textContent = '☘';
+  }
+}
+
+async function loadAdminProfile() {
+  const allProfiles = await fetch('/api/profile').then(r => r.json());
+  const activeKey = cachedState.currentAdmin || 'emerieco';
+  const badge = document.getElementById('activeAdminBadge');
+  if (badge) badge.textContent = cachedState.currentAdminName || activeKey;
+  const p = allProfiles && allProfiles[activeKey] ? allProfiles[activeKey] : allProfiles;
+  if (!p) return;
+  document.getElementById('profName').value = p.name || '';
+  document.getElementById('profRole').value = p.role || '';
+  document.getElementById('profAvatarUrl').value = p.avatar_url || '';
+  document.getElementById('profBio').value = p.bio || '';
+  const s = p.socials || {};
+  document.getElementById('socInsta').value = s.instagram || '';
+  document.getElementById('socTiktok').value = s.tiktok || '';
+  document.getElementById('socTwitch').value = s.twitch || '';
+  document.getElementById('socYoutube').value = s.youtube || '';
+  document.getElementById('socSpotify').value = s.spotify || '';
+  previewAvatarUrl(p.avatar_url || '');
+}
+
+async function uploadAdminAvatar(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('avatar', file);
+  const r = await fetch('/api/admin/profile/avatar', { method: 'POST', body: fd });
+  const out = await r.json();
+  if (!r.ok) {
+    alert(out.error || 'Could not upload profile picture.');
+    return;
+  }
+  document.getElementById('profAvatarUrl').value = out.avatar_url;
+  previewAvatarUrl(out.avatar_url);
+  alert('📷 Profile picture uploaded!');
+}
+
+async function saveAdminProfile() {
+  const payload = {
+    name: document.getElementById('profName').value,
+    role: document.getElementById('profRole').value,
+    avatar_url: document.getElementById('profAvatarUrl').value,
+    bio: document.getElementById('profBio').value,
+    socials: {
+      instagram: document.getElementById('socInsta').value,
+      tiktok: document.getElementById('socTiktok').value,
+      twitch: document.getElementById('socTwitch').value,
+      youtube: document.getElementById('socYoutube').value,
+      spotify: document.getElementById('socSpotify').value
+    }
+  };
+  const r = await fetch('/api/admin/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (r.ok) alert('👤 Profile & Socials updated on the homepage!');
+  else alert('Failed to save profile.');
+}
+
+async function saveTopTracks() {
+  const r = await fetch('/api/admin/top-tracks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topTracks: adminTracks })
+  });
+  if (r.ok) alert('🔥 Top 10 Tracks saved to homepage!');
+}
+
+checkSession();
+});
+
+async function logoutAdmin(){
+ await fetch('/api/admin/logout',{method:'POST'});
+ location.reload();
+}
+
+$('#adminFilter').addEventListener('input',renderDashboard);
+
+function renderDashboard(){
+ const term=($('#adminFilter')?.value||'').trim().toLowerCase();
+ const queue=cachedState.queue.filter(q=>!term || `${q.track} ${q.artist} ${q.genre}`.toLowerCase().includes(term));
+ const reviews=cachedState.reviews.filter(r=>!term || `${r.track} ${r.artist} ${r.genre}`.toLowerCase().includes(term));
+
+ $('#statPending').textContent=cachedState.queue.length;
+ $('#statPriority').textContent=cachedState.queue.filter(q=>q.priority>0).length;
+ $('#statPublished').textContent=cachedState.reviews.length;
+ if(cachedState.reviews.length){
+  const avg=cachedState.reviews.reduce((a,r)=>a+Number(r.score??0),0)/cachedState.reviews.length;
+  $('#statAvg').textContent=avg.toFixed(1);
+ }else $('#statAvg').textContent='—';
+
+ $('#adminQueue').innerHTML=queue.length?queue.map(q=>`
+  <div class="item">
+   <div class="item-top">
+    <div>
+     <strong style="font-size:16px">${esc(q.track)}</strong>
+     <div class="muted">${esc(q.artist)} · ${esc(q.genre)} · #${q.id} ${q.contact?'· Contact: '+esc(q.contact):''}</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+     <select class="inline-input" style="width:auto;padding:6px 10px" onchange="setPriority(${q.id}, this.value)">
+      <option value="0" ${q.priority===0?'selected':''}>Standard Queue</option>
+      <option value="1" ${q.priority===1?'selected':''}>Skip (Priority 1)</option>
+      <option value="2" ${q.priority===2?'selected':''}>Super Skip (Priority 2)</option>
+     </select>
+     <span class="pill ${q.priority===2?'super':''}">${q.priority===2?'SUPER SKIP ♣':q.priority===1?'SKIP':'STANDARD'}</span>
+    </div>
+   </div>
+   ${q.note?`<div class="muted" style="background:#ffffff06;padding:10px 12px;border-radius:8px">Artist note: ${esc(q.note)}</div>`:''}
+   <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    ${q.song_url?`<a class="btn ghost" target="_blank" rel="noopener" href="${esc(q.song_url)}">Open Streaming Link ↗</a>`:''}
+    ${q.audio_url?`<audio controls preload="none" src="${esc(q.audio_url)}"></audio>`:''}
+   </div>
+   <div class="row-actions">
+    <input class="inline-input" type="number" id="score-${q.id}" min="0" max="10" step="0.1" value="8.0" placeholder="0.0 - 10.0">
+    <input class="inline-input" type="text" id="review-${q.id}" placeholder="Write your honest review feedback...">
+    <button class="btn" type="button" onclick="publishReview(${q.id})">Publish Review ♣</button>
+    <button class="btn ghost" type="button" onclick="setNowPlaying(${q.id})">Spin Live 📡</button>
+    <button class="btn danger" type="button" onclick="deleteItem(${q.id})">Remove</button>
+   </div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn ghost" style="padding:6px 10px;font-size:11px" type="button" onclick="promoteArtist(${q.id}, 'queue')">⭐ + Top 5 Artist</button>
+    <button class="btn ghost" style="padding:6px 10px;font-size:11px" type="button" onclick="promoteTrack(${q.id}, 'queue')">🔥 + Top 10 Track</button>
+   </div>
+  </div>
+ `).join(''):'<div class="panel muted">No matching tracks in queue.</div>';
+
+ $('#adminReviews').innerHTML=reviews.length?reviews.map(r=>`
+  <div class="item">
+   <div class="item-top">
+    <div><strong>${esc(r.track)}</strong> — <span class="muted">${esc(r.artist)} (${esc(r.genre)})</span></div>
+    <div style="display:flex;gap:10px;align-items:center">
+     <b style="color:var(--lime);font-size:18px">${Number(r.score).toFixed(1)} / 10</b>
+     <button class="btn ghost" type="button" onclick="promoteArtist(${r.id}, 'reviews')">⭐ + Top 5 Artist</button>
+     <button class="btn ghost" type="button" onclick="promoteTrack(${r.id}, 'reviews')">🔥 + Top 10 Track</button>
+     <button class="btn ghost" type="button" onclick="unpublishItem(${r.id})">Move to Queue</button>
+     <button class="btn danger" type="button" onclick="deleteItem(${r.id})">Delete</button>
+    </div>
+   </div>
+   <div class="muted">${esc(r.review)}</div>
+  </div>
+ `).join(''):'<div class="panel muted">No published reviews match your filter.</div>';
+}
+
+async function setPriority(id,priority){
+ const r=await fetch(`/api/admin/submissions/${id}/priority`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({priority:Number(priority)})});
+ if(r.ok)checkSession();
+}
+
+async function unpublishItem(id){
+ const r=await fetch(`/api/admin/submissions/${id}/unpublish`,{method:'POST'});
+ if(r.ok)checkSession();
+}
+
+async function publishReview(id){
+ const score=parseFloat($(`#score-${id}`).value);
+ const review=$(`#review-${id}`).value.trim();
+ if(Number.isNaN(score)||score<0||score>10){alert('Enter a score between 0 and 10.');return;}
+ if(!review){alert('Write a short review before publishing.');return;}
+ const r=await fetch(`/api/admin/submissions/${id}/publish`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score,review})});
+ if(r.ok)checkSession();
+ else alert('Could not publish review.');
+}
+
+async function adminSpinWheel(){const r=await fetch("/api/wheel/spin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({onlyStandard:true})});const out=await r.json();if(!r.ok){alert(out.error||"Spin failed");return;}alert("🎰 Winner: "+out.spin.winnerArtist+" — "+out.spin.winnerTrack+" ("+out.spin.tier+")!");checkSession();}
+async function setNowPlaying(id){const r=await fetch("/api/now-playing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});if(r.ok)alert("Pushed track #"+id+" to live stream widgets!");}
+async function deleteItem(id){
+ if(!confirm('Delete this submission permanently?'))return;
+ const r=await fetch(`/api/admin/submissions/${id}`,{method:'DELETE'});
+ if(r.ok)checkSession();
+}
+
+async function changeMyPassword() {
+  const currentPassword = document.getElementById('curPass').value;
+  const newPassword = document.getElementById('newPass').value;
+  const confirmPassword = document.getElementById('confNewPass').value;
+  if (!currentPassword || !newPassword) {
+    alert('Please fill in your current password and new password.');
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    alert('New passwords do not match.');
+    return;
+  }
+  const r = await fetch('/api/admin/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+  });
+  const out = await r.json();
+  if (!r.ok) {
+    alert(out.error || 'Could not update password.');
+    return;
+  }
+  document.getElementById('curPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('confNewPass').value = '';
+  alert('🔑 Password updated successfully!');
+}
+
+loadAccountsStatus();
+checkSession();
+</script></body></html>
