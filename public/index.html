@@ -1304,14 +1304,14 @@ async function buyPriority(tier){
   else document.querySelector('#submit').scrollIntoView({behavior:'smooth'});
   return;
  }
- try{
-  const r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({submissionId:latestSubmissionId,tier})});
-  const out=await r.json();
-  if(!r.ok)throw new Error(out.error||'Checkout unavailable.');
-  location.href=out.url;
- }catch(e){
-  showToast(e.message);
- }
+ const cashtag = '$YourCashTag';
+  const price = tier === 'super_skip' ? '$15' : '$5';
+  const label = tier === 'super_skip' ? 'Super Skip' : 'Skip';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(cashtag).catch(()=>{});
+  }
+  alert(`Send ${price} to ${cashtag} on Cash App for ${label} Priority!\n\nInclude your Artist & Track Name in the memo so we can bump your track to the top.\n\n(${cashtag} has been copied to your clipboard!)`);
+  showToast(`Send ${price} to ${cashtag} on Cash App with your track name!`);
 }
 
 const params=new URLSearchParams(location.search);
