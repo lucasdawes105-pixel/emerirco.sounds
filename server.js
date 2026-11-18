@@ -62,6 +62,10 @@ function readDB() {
       nextId: 1,
       nowPlaying: null,
       lastWheelSpin: null,
+      tiktokLive: {
+        emerieco: { isLive: false, url: 'https://www.tiktok.com/@emeriegmz/live' },
+        jayclerr: { isLive: false, url: 'https://www.tiktok.com/@jayclerronone/live' }
+      },
       adminProfiles: {
         emerieco: {
           username: 'emerieco',
@@ -107,6 +111,12 @@ function readDB() {
   const parsed = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
   if (!parsed.nowPlaying) parsed.nowPlaying = null;
   if (!parsed.lastWheelSpin) parsed.lastWheelSpin = null;
+  if (!parsed.tiktokLive || !parsed.tiktokLive.emerieco) {
+    parsed.tiktokLive = {
+      emerieco: { isLive: false, url: 'https://www.tiktok.com/@emeriegmz/live' },
+      jayclerr: { isLive: false, url: 'https://www.tiktok.com/@jayclerronone/live' }
+    };
+  }
   if (!Array.isArray(parsed.topArtists)) parsed.topArtists = [];
   if (!Array.isArray(parsed.topTracks)) parsed.topTracks = [];
   if (!parsed.adminPasswords || typeof parsed.adminPasswords !== 'object') {
@@ -351,6 +361,7 @@ app.get('/api/now-playing', (_req, res) => {
 
   res.json({
     nowPlaying: active,
+    tiktokLive: db.tiktokLive,
     upNext: queue.slice(0, 5).map(q => ({
       id: q.id,
       artist: q.artist,
@@ -370,7 +381,16 @@ app.get('/api/now-playing', (_req, res) => {
     publishedCount: db.submissions.filter(s => s.status === 'published').length
   });
 });
-
+app.post('/api/tiktok-live', requireAdmin, (req, res) => {
+  const db = readDB();
+  const host = req.body.host === 'jayclerr' ? 'jayclerr' : 'emerieco';
+  db.tiktokLive[host] = {
+    isLive: Boolean(req.body.isLive),
+    url: db.tiktokLive[host]?.url || (host === 'jayclerr' ? 'https://www.tiktok.com/@jayclerronone/live' : 'https://www.tiktok.com/@emeriegmz/live')
+  };
+  writeDB(db);
+  res.json({ ok: true, tiktokLive: db.tiktokLive });
+});
 // Public API: Set Now-Playing track when played in browser or stream
 app.post('/api/now-playing', requireAdmin, (req, res) => {
   const id = parseInt(req.body.id, 10);
