@@ -75,6 +75,16 @@ audio{width:100%;height:36px;border-radius:8px}
   </div>
 
   <div id="dashboard" style="display:none">
+    <div class="panel" style="margin-top:0;margin-bottom:18px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
+      <div>
+        <div style="font-weight:800;font-size:15px;">TikTok Live Status</div>
+        <div class="muted" style="font-size:12px;">Flip your switch to show your Live Preview Card on the homepage.</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <button type="button" class="btn ghost" id="liveBtnEmerieco" onclick="toggleTikTokLive('emerieco')">Emerieco (@emeriegmz): OFFLINE</button>
+        <button type="button" class="btn ghost" id="liveBtnJayclerr" onclick="toggleTikTokLive('jayclerr')">Jayclerr (@jayclerronone): OFFLINE</button>
+      </div>
+    </div>
     <div class="stats">
       <div class="stat"><b id="statPending">0</b><span>Pending in Queue</span></div>
       <div class="stat"><b id="statPriority">0</b><span>Priority Tracks</span></div>
@@ -523,6 +533,57 @@ async function publishReview(id){
 
 async function adminSpinWheel(){const r=await fetch("/api/wheel/spin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({onlyStandard:true})});const out=await r.json();if(!r.ok){alert(out.error||"Spin failed");return;}alert("🎰 Winner: "+out.spin.winnerArtist+" — "+out.spin.winnerTrack+" ("+out.spin.tier+")!");checkSession();}
 async function setNowPlaying(id){const r=await fetch("/api/now-playing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});if(r.ok)alert("Pushed track #"+id+" to live stream widgets!");}
+  let tiktokLiveState = {
+  emerieco: { isLive: false },
+  jayclerr: { isLive: false }
+};
+
+function renderTikTokButtons() {
+  const eBtn = document.getElementById('liveBtnEmerieco');
+  const jBtn = document.getElementById('liveBtnJayclerr');
+  if (eBtn) {
+    const live = Boolean(tiktokLiveState.emerieco?.isLive);
+    eBtn.textContent = `Emerieco (@emeriegmz): ${live ? '🔴 LIVE' : 'OFFLINE'}`;
+    eBtn.className = live ? 'btn' : 'btn ghost';
+  }
+  if (jBtn) {
+    const live = Boolean(tiktokLiveState.jayclerr?.isLive);
+    jBtn.textContent = `Jayclerr (@jayclerronone): ${live ? '🔴 LIVE' : 'OFFLINE'}`;
+    jBtn.className = live ? 'btn' : 'btn ghost';
+  }
+}
+
+async function syncTikTokLive() {
+  try {
+    const r = await fetch('/api/now-playing');
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data.tiktokLive) {
+      tiktokLiveState = data.tiktokLive;
+      renderTikTokButtons();
+    }
+  } catch (e) {}
+}
+
+async function toggleTikTokLive(host) {
+  const nextState = !Boolean(tiktokLiveState[host]?.isLive);
+  const r = await fetch('/api/tiktok-live', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ host, isLive: nextState })
+  });
+  if (r.ok) {
+    const data = await r.json();
+    if (data.tiktokLive) {
+      tiktokLiveState = data.tiktokLive;
+      renderTikTokButtons();
+    }
+  } else {
+    alert('Could not update TikTok Live status.');
+  }
+}
+
+syncTikTokLive();
 async function deleteItem(id){
  if(!confirm('Delete this submission permanently?'))return;
  const r=await fetch(`/api/admin/submissions/${id}`,{method:'DELETE'});
