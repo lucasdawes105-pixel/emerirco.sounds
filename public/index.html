@@ -506,7 +506,7 @@ footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filt
   <div class="warp-label" id="warpLabel">SWITCHING FREQUENCY</div>
 </div>
 
-<div id="cosmicLoader" role="status" aria-live="polite" aria-label="Loading emerieco.sounds">
+<div id="cosmicLoader" role="status" aria-live="polite" aria-label="Loading emeraldco.sounds">
   <div class="loader-stars" id="loaderStars" aria-hidden="true"></div>
   <div class="loader-nebula" aria-hidden="true"></div>
   <div class="loader-stage" aria-hidden="true">
@@ -515,14 +515,14 @@ footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filt
     <div class="orbit orbit-3"></div>
     <div class="loader-clover">☘</div>
   </div>
-  <div class="loader-brand">emerieco<b>.</b>sounds</div>
+  <div class="loader-brand">emeraldco<b>.</b>sounds</div>
   <div class="loader-sub">INDEPENDENT MUSIC REVIEW PLATFORM</div>
   <div class="loader-bar-wrap" aria-hidden="true"><div class="loader-bar-fill" id="loaderBarFill"></div></div>
   <div class="loader-status">TUNING IN TO THE NEXT WAVE</div>
 </div>
 
 <header class="top">
-  <a class="brand" href="#top"><span class="brand-mark">☘</span>emerieco<b>.</b>sounds</a>
+  <a class="brand" href="#top"><span class="brand-mark">☘</span>emeraldco<b>.</b>sounds</a>
   <nav class="nav">
     <a href="#reviews">Reviews</a>
     <a href="#curated">Top Lists</a>
@@ -633,7 +633,7 @@ footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filt
   <div class="head">
     <div>
       <div class="eyebrow">👑 Host Certified Picks</div>
-      <h2>Emerieco’s Top Lists</h2>
+      <h2>Emeraldco’s Top Lists</h2>
     </div>
     <div class="curated-tabs">
       <button class="c-tab active" type="button" onclick="switchCuratedTab('artists', this)">🏆 Top 5 Artists</button>
@@ -650,7 +650,7 @@ footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filt
       <div class="eyebrow">♣ Behind the Listening Room</div>
       <h2>Meet the Hosts</h2>
     </div>
-    <p>Curated &amp; reviewed live by Emerieco &amp; Jayclerr</p>
+    <p>Curated &amp; reviewed live by emeraldco &amp; Jayclerr</p>
   </div>
   <div id="hostsContainer" style="display:grid;gap:18px"></div>
 </section>
@@ -802,7 +802,7 @@ footer{border-top:1px solid var(--line);background:rgba(3,9,5,.75);backdrop-filt
 </div>
 
 <footer>
-  <span>© 2026 emerieco.sounds · Independent music reviews</span>
+  <span>© 2026 emeraldco.sounds · Independent music reviews</span>
   <span>☘ Green means go. Keep the sound moving. · <a href="/admin" id="footerAdminLink" style="color:var(--green);font-weight:700">Host Login</a></span>
 </footer>
 
@@ -1471,8 +1471,8 @@ function renderCurated(data) {
 
 function renderHostProfile(data) {
   if (!data) return;
-  const list = data.emerieco || data.jayclerr
-    ? [data.emerieco, data.jayclerr].filter(Boolean)
+  const list = data.emeraldco || data.jayclerr
+    ? [data.emeraldco, data.jayclerr].filter(Boolean)
     : [data];
 
   const container = $('#hostsContainer');
@@ -1648,11 +1648,11 @@ window.setCosmosTheme = function(theme, btn) {
   document.querySelectorAll('.cos-btn').forEach(b => {
     b.classList.toggle('active', b.dataset.theme === theme);
   });
-  try { localStorage.setItem('emerieco_cosmos', theme); } catch (_e) {}
+  try { localStorage.setItem('emeraldco_cosmos', theme); } catch (_e) {}
 };
 (function restoreCosmosTheme() {
   try {
-    const saved = localStorage.getItem('emerieco_cosmos');
+    const saved = localStorage.getItem('emeraldco_cosmos');
     if (saved) {
       const btn = document.querySelector(`.cos-btn[data-theme="${saved}"]`);
       window.setCosmosTheme(saved, btn);
@@ -1670,8 +1670,8 @@ window.setCosmosTheme = function(theme, btn) {
     if (!banner || !links) return;
 
     const active = [];
-    if (live.emerieco?.isLive) {
-      active.push('<a class="btn" href="https://www.tiktok.com/@emeriegmz/live" target="_blank" rel="noopener">Watch Emerieco (@emeriegmz) ↗</a>');
+    if (live.emeraldco?.isLive) {
+      active.push('<a class="btn" href="https://www.tiktok.com/@emeriegmz/live" target="_blank" rel="noopener">Watch emeraldco (@emeriegmz) ↗</a>');
     }
     if (live.jayclerr?.isLive) {
       active.push('<a class="btn" href="https://www.tiktok.com/@jayclerronone/live" target="_blank" rel="noopener">Watch Jayclerr (@jayclerronone) ↗</a>');
