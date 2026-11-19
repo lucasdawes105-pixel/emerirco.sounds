@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07130b"><title>emerieco.sounds — Admin Console</title>
+<meta name="theme-color" content="#07130b"><title>emeraldco.sounds — Admin Console</title>
 <style>
 :root{--bg:#060f09;--panel:#0e1911;--panel2:#152419;--line:#263f2d;--text:#f1f8f0;--muted:#9ab09d;--green:#55e078;--lime:#b8f36b;--danger:#ff6b6b}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#1b542a 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif}
@@ -38,7 +38,7 @@ audio{width:100%;height:36px;border-radius:8px}
 </style></head><body>
 <div id="pageWarp"><div class="warp-clover">☘</div><div class="warp-label">RETURNING TO HOMEPAGE</div></div>
 <header class="top">
-  <a class="brand" href="/">emerieco<b>.</b>sounds</a>
+  <a class="brand" href="/">emeraldco<b>.</b>sounds</a>
   <div style="display:flex;gap:10px;align-items:center">
     <a class="btn ghost" href="/widgets">Stream Widgets</a>
     <a class="btn ghost" href="/">← Back to Site</a>
@@ -52,12 +52,12 @@ audio{width:100%;height:36px;border-radius:8px}
 
   <div class="auth-box" id="loginBox">
     <h3 style="margin:0 0 6px" id="authTitle">Admin Sign In</h3>
-    <p class="muted" style="margin:0 0 14px;font-size:12px" id="authSubtitle">Select <b>Emerieco</b> or <b>Jayclerr</b> to sign in or create your own password.</p>
+    <p class="muted" style="margin:0 0 14px;font-size:12px" id="authSubtitle">Select <b>emeraldco</b> or <b>Jayclerr</b> to sign in or create your own password.</p>
     <form id="loginForm">
       <div class="field">
         <label>Admin Account</label>
         <select id="adminUser" onchange="updateAuthMode()">
-          <option value="emerieco">Emerieco (Host &amp; Head Curator)</option>
+          <option value="emeraldco">emeraldco (Host &amp; Head Curator)</option>
           <option value="jayclerr">Jayclerr (Co-Host &amp; Curator)</option>
         </select>
       </div>
@@ -81,7 +81,7 @@ audio{width:100%;height:36px;border-radius:8px}
         <div class="muted" style="font-size:12px;">Flip your switch to show your Live Preview Card on the homepage.</div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:10px;">
-        <button type="button" class="btn ghost" id="liveBtnEmerieco" onclick="toggleTikTokLive('emerieco')">Emerieco (@emeriegmz): OFFLINE</button>
+        <button type="button" class="btn ghost" id="liveBtnemeraldco" onclick="toggleTikTokLive('emeraldco')">emeraldco (@emeriegmz): OFFLINE</button>
         <button type="button" class="btn ghost" id="liveBtnJayclerr" onclick="toggleTikTokLive('jayclerr')">Jayclerr (@jayclerronone): OFFLINE</button>
       </div>
     </div>
@@ -115,7 +115,7 @@ audio{width:100%;height:36px;border-radius:8px}
         </div>
         <div style="display:grid;gap:12px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="field" style="margin:0"><label>Display Name</label><input id="profName" placeholder="Emerieco"></div>
+            <div class="field" style="margin:0"><label>Display Name</label><input id="profName" placeholder="emeraldco"></div>
             <div class="field" style="margin:0"><label>Title / Role</label><input id="profRole" placeholder="Host & Head Curator"></div>
           </div>
           <div class="field" style="margin:0"><label>Profile Picture URL (or upload on left)</label><input id="profAvatarUrl" placeholder="https://... or /uploads/..." oninput="previewAvatarUrl(this.value)"></div>
@@ -195,7 +195,7 @@ async function checkSession(){
  }
 }
 
-let accountsHasPassword = { emerieco: false, jayclerr: false };
+let accountsHasPassword = { emeraldco: false, jayclerr: false };
 
 async function loadAccountsStatus() {
   try {
@@ -210,7 +210,7 @@ async function loadAccountsStatus() {
 function updateAuthMode() {
   const user = $('#adminUser').value;
   const hasPw = Boolean(accountsHasPassword[user]);
-  const name = user === 'jayclerr' ? 'Jayclerr' : 'Emerieco';
+  const name = user === 'jayclerr' ? 'Jayclerr' : 'emeraldco';
   $('#loginMsg').textContent = '';
   if (!hasPw) {
     $('#authTitle').textContent = `Create Password for ${name}`;
@@ -370,7 +370,7 @@ function previewAvatarUrl(url) {
 
 async function loadAdminProfile() {
   const allProfiles = await fetch('/api/profile').then(r => r.json());
-  const activeKey = cachedState.currentAdmin || 'emerieco';
+  const activeKey = cachedState.currentAdmin || 'emeraldco';
   const badge = document.getElementById('activeAdminBadge');
   if (badge) badge.textContent = cachedState.currentAdminName || activeKey;
   const p = allProfiles && allProfiles[activeKey] ? allProfiles[activeKey] : allProfiles;
@@ -534,16 +534,16 @@ async function publishReview(id){
 async function adminSpinWheel(){const r=await fetch("/api/wheel/spin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({onlyStandard:true})});const out=await r.json();if(!r.ok){alert(out.error||"Spin failed");return;}alert("🎰 Winner: "+out.spin.winnerArtist+" — "+out.spin.winnerTrack+" ("+out.spin.tier+")!");checkSession();}
 async function setNowPlaying(id){const r=await fetch("/api/now-playing",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});if(r.ok)alert("Pushed track #"+id+" to live stream widgets!");}
   let tiktokLiveState = {
-  emerieco: { isLive: false },
+  emeraldco: { isLive: false },
   jayclerr: { isLive: false }
 };
 
 function renderTikTokButtons() {
-  const eBtn = document.getElementById('liveBtnEmerieco');
+  const eBtn = document.getElementById('liveBtnemeraldco');
   const jBtn = document.getElementById('liveBtnJayclerr');
   if (eBtn) {
-    const live = Boolean(tiktokLiveState.emerieco?.isLive);
-    eBtn.textContent = `Emerieco (@emeriegmz): ${live ? '🔴 LIVE' : 'OFFLINE'}`;
+    const live = Boolean(tiktokLiveState.emeraldco?.isLive);
+    eBtn.textContent = `emeraldco (@emeriegmz): ${live ? '🔴 LIVE' : 'OFFLINE'}`;
     eBtn.className = live ? 'btn' : 'btn ghost';
   }
   if (jBtn) {
